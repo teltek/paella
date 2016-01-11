@@ -63,12 +63,17 @@ Class ("paella.editor.Track", {
 		trackData.d = trackData.e - trackData.s;
 		var track = document.createElement('div');
 		track.className = 'editorTrackItem ' + plugin.getName();
+		if(plugin.isSegment()) {
+			track.className += " editorTrackItemSegment";
+		} else {
+			track.className += " editorTrackItemMark";
+		}
 		track.id = this.buildTrackItemId(plugin.getName(),trackData.id);
 		var start = trackData.s * 100 / duration;
-		var width = trackData.d * 100 / duration;
+		var width = plugin.isSegment() ? (trackData.d * 100 / duration) + '%' : '3px';
 		$(track).css({
 			'left':start + '%',
-			'width':width + '%',
+			'width':width,
 			'background-color':plugin.getColor(),
 			'opacity':this.trackOpacity.back
 		});
@@ -214,11 +219,12 @@ Class ("paella.editor.Track", {
 
 	onResizerUp:function(track,event) {
 		if (this.resizeTrack) {
+
 			var duration = paella.player.videoContainer.duration(true);
 			var totalWidth = $(this.container).width();
 			var left = $(this.resizeTrack).position().left;
-			var width = $(this.resizeTrack).width();
 			left = left * 100 / totalWidth;
+			var width = $(this.resizeTrack).width();
 			width = width * 100 / totalWidth;
 			var start = left * duration / 100;
 			var end = (left + width) * duration / 100;
@@ -230,9 +236,15 @@ Class ("paella.editor.Track", {
 			paella.editor.instance.rightBar.updateCurrentTab();
 			paella.editor.instance.bottomBar.timeline.rebuildTrack(plugin.getName());
 
+			if(plugin.isSegment()) {
+				width = width + '%';
+			} else {
+				width = '3px';
+			}
+
 			$(this.resizeTrack).css({
 				'left':left + '%',
-				'width':width + '%'
+				'width':width
 			});
 		}
 		this.resizeTrack = null;

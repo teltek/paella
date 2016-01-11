@@ -176,6 +176,10 @@ Class ("paella.editor.TrackPlugin", paella.editor.EditorPlugin,{
 		return exampleTracks;
 	},
 
+	isSegment:function() {
+		return true;
+	},
+
 	allowResize:function() {
 		return true;
 	},

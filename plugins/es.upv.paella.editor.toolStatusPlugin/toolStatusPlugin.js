@@ -47,7 +47,11 @@ Class ("paella.editor.ToolStatusPlugin",paella.editor.RightBarPlugin,{
 			plugin.buildToolTabContent(trackContainer);
 			if (trackContainer.childNodes.length==0) {
 				for (var i=0;i<trackList.length;++i) {
-					this.addTrackData(trackContainer,trackList[i]);
+                    if (plugin.isSegment()) {
+					    this.addTrackData(trackContainer,trackList[i]);
+                    } else {
+                        this.addTrackNoSegmentData(trackContainer,trackList[i]);
+                    }
 				}
 			}
 			elem.appendChild(trackContainer);
@@ -70,6 +74,21 @@ Class ("paella.editor.ToolStatusPlugin",paella.editor.RightBarPlugin,{
 		trackTime.innerHTML = base.dictionary.translate('from') + ' ' + paella.utils.timeParse.secondsToTime(track.s) + ' ' +
 							  base.dictionary.translate('to') + ' ' + paella.utils.timeParse.secondsToTime(track.e) + ', ' +
 							  duration + ' sec';
+		trackData.appendChild(trackTime);
+		if (track.content) {
+			var content = paella.AntiXSS.htmlUnescape(track.content);
+			this.addTrackContent(trackData,track.id,content,track.s,track.e);
+		}
+		parent.appendChild(trackData);
+	},
+
+
+	addTrackNoSegmentData:function(parent,track) {
+		var trackData = document.createElement('div');
+		//trackData.innerHTML = track.id + " s:" + track.s + ", e:" + track.e;
+		var trackTime = document.createElement('div');
+		var duration = Math.round((track.e - track.s) * 100) / 100;
+		trackTime.innerHTML = base.dictionary.translate('at') + ' ' + paella.utils.timeParse.secondsToTime(track.s);
 		trackData.appendChild(trackTime);
 		if (track.content) {
 			var content = paella.AntiXSS.htmlUnescape(track.content);
