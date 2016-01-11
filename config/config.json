@@ -85,7 +85,8 @@
 			"es.upv.paella.editor.toolStatusPlugin": {"enabled":true},
 			"es.upv.paella.editor.trackAnnotationsPlugin": {"enabled":true},
 			"es.upv.paella.editor.trackBreaksPlugin": {"enabled":true},
-			"es.upv.paella.editor.trimmingTrackPlugin": {"enabled":true}
+			"es.upv.paella.editor.trimmingTrackPlugin": {"enabled":true},
+			"pumukitChapterMarkPlugin": {"enabled":true}
 		}
 	},
     "standalone" : {
