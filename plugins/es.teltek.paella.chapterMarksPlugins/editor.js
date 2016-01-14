@@ -16,10 +16,10 @@ Class ("paella.plugins.MarksEditorPlugin",paella.editor.MainTrackPlugin, {
 	setup:function() {
 		if (base.dictionary.currentLanguage()=="es") {
 			var esDict = {
-				'Chapter marks':'Marcas de capitulo',
-				'Chapter mark':'Marca de capitulo',
+				'Chapter marks':'Marcas de capítulo',
+				'Chapter mark':'Marca de capítulo',
 				'Create a new chapter marks in the current position': 'Añade una marca de captitulo en el instante actual',
-				'Delete selected chapter mark': 'Borra la marca de capitulo seleccionada'
+				'Delete selected chapter mark': 'Borra la marca de capítulo seleccionada'
 			};
 			base.dictionary.addDictionary(esDict);
 		}
@@ -119,7 +119,7 @@ Class ("paella.plugins.MarksEditorPlugin",paella.editor.MainTrackPlugin, {
 
 	contextHelpString:function() {
 		if (base.dictionary.currentLanguage()=="es") {
-			return "xxxx";
+			return "Utiliza esta herramienta para crear, borrar y editar marcas de capítulos. Para crear una marca, selecciona el instante de tiempo haciendo clic en el fondo de la línea de tiempo, y pulsa el botón 'Crear'. Utiliza esta pestaña para editar el texto de los capítulos";
 		}
 		else {
 			return "Use this tool to create, delete and edit chapter marks. To create a chapter chapter, select the time instant clicking the timeline's background and press 'create' button. Use this tab to edit the chapter mark text.";
@@ -131,7 +131,8 @@ Class ("paella.plugins.MarksEditorPlugin",paella.editor.MainTrackPlugin, {
 			marks:this.tracks
 		};
 		paella.data.write('marks',{id:paella.initDelegate.getId()},data,function(response,status) {
-			paella.plugins.marksPlayerPlugin.marks = data.marks;
+                        if(typeof paella.plugins.marksPlayerPlugin !== 'undefined')
+			    paella.plugins.marksPlayerPlugin.marks = data.marks;
 			success(status);
 		});
 
