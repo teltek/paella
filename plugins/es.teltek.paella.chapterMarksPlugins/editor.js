@@ -131,7 +131,8 @@ Class ("paella.plugins.MarksEditorPlugin",paella.editor.MainTrackPlugin, {
 			marks:this.tracks
 		};
 		paella.data.write('marks',{id:paella.initDelegate.getId()},data,function(response,status) {
-			paella.plugins.marksPlayerPlugin.marks = data.marks;
+                        if(typeof paella.plugins.marksPlayerPlugin !== 'undefined')
+			    paella.plugins.marksPlayerPlugin.marks = data.marks;
 			success(status);
 		});
 
