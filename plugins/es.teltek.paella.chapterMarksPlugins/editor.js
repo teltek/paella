@@ -48,7 +48,7 @@ Class ("paella.plugins.MarksEditorPlugin",paella.editor.MainTrackPlugin, {
 		else if (toolName=='create') {
 			paella.events.trigger(paella.events.documentChanged);
 			var start = paella.player.videoContainer.currentTime();
-			var end = start + 1;
+			var end = start;
 			var id = this.getTrackUniqueId();
 			var content = base.dictionary.translate('Chapter mark');
 			this.tracks.push({id:id,s:start,e:end,content:content,name:content});
