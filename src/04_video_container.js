@@ -480,8 +480,8 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		}
 		if (current>=Math.floor(end) && !this.paused()) {
 			var thisClass = this;
-			paella.events.trigger(paella.events.endVideo,{videoContainer:thisClass});
 			this.pause();
+//			paella.events.trigger(paella.events.endVideo,{videoContainer:thisClass});
 		}
 		else if (current<start) {
 			this.setCurrentTime(start + 1);
@@ -495,9 +495,13 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		else {
 			this._playOnLoad = true;
 		}
+		if (this.trimming.enabled && this.currentTime() >= Math.floor(this.trimming.end)) {
+			this.setCurrentTime(this.trimming.start);
+                }
+
 		var masterVideo = this.masterVideo();
 		var slaveVideo = this.slaveVideo();
-		if (masterVideo) {
+	        if (masterVideo) {
 			masterVideo.play();
 		}
 		if (slaveVideo) {
