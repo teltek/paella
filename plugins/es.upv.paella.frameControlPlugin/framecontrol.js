@@ -149,7 +149,7 @@ Class ("paella.plugins.FrameControlPlugin",paella.ButtonPlugin,{
 			var framesKeys = Object.keys(frames);
 			numFrames = framesKeys.length;
 
-			framesKeys.map(function(i){return parseInt(i, 10);})
+			framesKeys.map(function(i){return Number(i);})
 			.sort(function(a, b){return a-b;})
 			.forEach(function(key){
 				var frameItem = thisClass.getFrame(frames[key]);
@@ -292,7 +292,7 @@ Class ("paella.plugins.FrameControlPlugin",paella.ButtonPlugin,{
 	},
 
 	onClick:function(event,frameData) {
-		paella.events.trigger(paella.events.seekToTime,{time:frameData.time + 1});
+		paella.player.videoContainer.seekToTime(frameData.time + 1);
 	},
 
 	onTimeUpdate:function(currentTime) {

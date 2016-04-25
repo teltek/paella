@@ -10,7 +10,9 @@ Class ("paella.plugins.TrimmingLoaderPlugin",paella.EventDrivenPlugin,{
 				this.loadTrimming();
 				break;
 			case paella.events.showEditor:
-				paella.player.videoContainer.disableTrimming();
+				if (paella.player.accessControl.permissions.canWrite) {
+					paella.player.videoContainer.disableTrimming();
+				}
 				break;
 			case paella.events.hideEditor:
 				if (paella.player.config.trimming && paella.player.config.trimming.enabled) {
@@ -26,6 +28,15 @@ Class ("paella.plugins.TrimmingLoaderPlugin",paella.EventDrivenPlugin,{
 			if (data && status && data.end>0) {
 				paella.player.videoContainer.enableTrimming();
 				paella.player.videoContainer.setTrimming(data.start, data.end);
+			}
+			else {
+				// Check for optional trim 'start' and 'end', in seconds, in location args
+				var startTime =  base.parameters.get('start');
+				var endTime = base.parameters.get('end');
+				if (startTime && endTime) {
+					paella.player.videoContainer.enableTrimming();
+					paella.player.videoContainer.setTrimming(startTime, endTime);
+				}
 			}
 		});
 	}
