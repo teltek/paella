@@ -13,7 +13,7 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 	checkEnabled:function(onSuccess) {
 		this.currentPlaylistId = base.parameters.get("playlistId");
 		this.currentVideoId = base.parameters.get("videoId");
-		if (this.currentPlaylistId) {
+		if (this.currentPlaylistId && this.currentVideoId){
 			onSuccess(true);
 		}
 		else {
@@ -22,17 +22,22 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 	},
 
 	setup:function() {
-		//NOTE: Does not work with cross-domain requests unless CORS is set.
 		var url = this.config.playlistApi + "/" + this.currentPlaylistId;
-		That = this;
+		var playlistPlugin = this;
 		base.ajax.get(
 			{url: url},
 			function(data, contentType, returnCode) {
-				That.playlistVideos = data;
+				playlistPlugin.playlistVideos = data;
 				//Is there a better way to relaunch buildContent?
-				container = That.containerManager.containers[That.getName()];
+				container = playlistPlugin.containerManager.containers[playlistPlugin.getName()];
 				if(container && container.element)
-					That.buildContent(container.element);
+					playlistPlugin.buildContent(container.element);
+			}
+		);
+		paella.events.bind(
+			paella.events.endVideo,
+			function(event){
+				playlistPlugin.goToNextVideo();
 			}
 		);
 	},
@@ -44,13 +49,25 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 		}
 		this.playlistVideos.forEach(function(item){
 			var elem = document.createElement('div');
-			elem.className = "videobutton"+ (item.id == That.currentVideoId ?' playing':'');
+			elem.className = "videobutton"+ (item.id == this.currentVideoId ?' playing':'');
 			elem.innerHTML = item.name;
 			$(elem).click(function(event) {
 				window.location.href=item.url;
 			});
 			domElement.appendChild(elem);
 		});
+	},
+
+	goToNextVideo:function(){
+		var playlistPlugin = this;
+		var index = this.playlistVideos.findIndex(
+			function(elem){
+				return elem.id == playlistPlugin.currentVideoId;
+			}
+		);
+		var length = this.playlistVideos.length;
+		var next = this.playlistVideos[(index + 1) % length];
+		window.location.href = next.url;
 	}
 });
 
