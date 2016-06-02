@@ -1,5 +1,5 @@
 Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
-	currentSeriesId:null,
+	currentPlaylistId:null,
 	currentVideoId:null,
 	playlistVideos:[],
 
@@ -11,9 +11,9 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 	getButtonType:function() { return paella.ButtonPlugin.type.popUpButton; },
 
 	checkEnabled:function(onSuccess) {
-		this.currentSeriesId = base.parameters.get("seriesId");
+		this.currentPlaylistId = base.parameters.get("playlistId");
 		this.currentVideoId = base.parameters.get("videoId");
-		if (this.currentSeriesId && this.currentVideoId ) {
+		if (this.currentPlaylistId) {
 			onSuccess(true);
 		}
 		else {
@@ -23,7 +23,7 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 
 	setup:function() {
 		//NOTE: Does not work with cross-domain requests unless CORS is set.
-		var url = this.config.playlistApi + "/" + this.currentSeriesId;
+		var url = this.config.playlistApi + "/" + this.currentPlaylistId;
 		That = this;
 		base.ajax.get(
 			{url: url},
