@@ -65,7 +65,7 @@ Class ("paella.VideoOverlay", paella.DomNode,{
 				this.domElement.removeChild(element);
 			}
 			catch (e) {
-				
+
 			}
 		}
 	},
@@ -358,14 +358,14 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 
 	_masterQuality:null,
 	_slaveQuality:null,
-	
+
 	_firstLoad:false,
 	_playOnLoad:false,
 	_seekToOnLoad:0,
-	
+
 	_defaultMasterVolume:1,
 	_defaultSlaveVolume:1,
-	
+
 	_showPosterFrame:true,
 
 	initialize:function(id) {
@@ -395,11 +395,11 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		this.container.addNode(new paella.BackgroundContainer(this.backgroundId, paella.utils.folders.profiles() + '/resources/default_background_paella.jpg'));
 
 		paella.events.bind(paella.events.timeupdate,function(event) { thisClass.checkVideoTrimming(); } );
-		
+
 		paella.events.bind(paella.events.singleVideoReady, function(evt,params) {
 			thisClass.onVideoLoaded(params.sender);
 		});
-		
+
 		paella.events.bind(paella.events.singleVideoUnloaded, function(evt,params) {
 			thisClass.onVideoUnloaded(params.sender);
 		});
@@ -422,7 +422,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 
 		}
 	},
-	
+
 	setVideoQualityStrategy:function(strategy) {
 		this._videoQualityStrategy = strategy;
 	},
@@ -485,7 +485,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		if (current>=Math.floor(end) && !this.paused()) {
 			var thisClass = this;
 			this.pause();
-//			paella.events.trigger(paella.events.endVideo,{videoContainer:thisClass});
+			paella.events.trigger(paella.events.endVideo,{videoContainer:thisClass});
 		}
 		else if (current<start) {
 			this.setCurrentTime(start + 1);
@@ -538,7 +538,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 	},
 
 	setCurrentTime:function(time) {
-		if (time<=0) time = 1; 
+		if (time<=0) time = 1;
 		if (this.trimming.enabled) {
 			if (time<this.trimming.start) time = this.trimming.start;
 			if (time>this.trimming.end) time = this.trimming.end;
@@ -610,11 +610,11 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			return 0;
 		}
 	},
-	
+
 	setDefaultMasterVolume:function(vol) {
 		this._defaultMasterVolume = vol;
 	},
-	
+
 	setDefaultSlaveVolume:function(vol) {
 		this._defaultSlaveVolume = vol;
 	},
@@ -668,9 +668,9 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 	setMasterQuality:function(quality) {
 		this._masterQuality = quality;
 	},
-	
+
 	setSlaveQuality:function(quality) {
-		this._slaveQuality = quality;		
+		this._slaveQuality = quality;
 	},
 
 	setStartTime:function(time) {
@@ -678,8 +678,8 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		this.seekToTime(time);
 	},
 
-	reloadVideos:function(masterQuality,slaveQuality) {	
-		var isPaused = paella.player.videoContainer.paused();			
+	reloadVideos:function(masterQuality,slaveQuality) {
+		var isPaused = paella.player.videoContainer.paused();
 		this._showPosterFrame = false;
 		var memorizedCurrentTime = this.currentTime();
 		var masterVideo = this.masterVideo();
@@ -688,13 +688,13 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		//if(slaveVideo) slaveVideo.freeze();
 		var masterVolume = masterVideo.volume();
 		var slaveVolume = slaveVideo && slaveVideo.volume();
-		 		
+
 		this.setMasterQuality(masterQuality);
 		this.setSlaveQuality(slaveQuality);
-		
+
 		var currentMastr = this.currentMasterVideoData;
 		var currentSlave = this.currentSlaveVideoData;
-		
+
 		var newMasterSrc = this._videoSourceData.master ? this.selectSource(this._videoSourceData.master.data,this._videoSourceData.master.type.name):null;
 		var newSlaveSrc = this._videoSourceData.slave ? this.selectSource(this._videoSourceData.slave.data,this._videoSourceData.slave.type.name):null;
 		if (newMasterSrc) {
@@ -703,7 +703,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		if (newSlaveSrc) {
 			newSlaveSrc = this.getVideoQuality(newSlaveSrc,'slave');
 		}
-		
+
 		if (currentMastr.res.w!=newMasterSrc.res.w || currentMastr.res.h!=newMasterSrc.res.h ||
 			currentMastr.res.w!=newMasterSrc.res.w || currentMastr.res.h!=newMasterSrc.res.h) {
 			if (masterVideo) masterVideo.unload();
@@ -711,7 +711,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			this._seekToOnLoad = memorizedCurrentTime;
 			this.setSources(this._videoSourceData.master,this._videoSourceData.slave);
 			masterVideo = this.masterVideo();
-			slaveVideo = this.slaveVideo();			
+			slaveVideo = this.slaveVideo();
 			if (masterVideo) masterVideo.setVolume(masterVolume);
 			if (slaveVideo) slaveVideo.setVolume(slaveVolume);
 			this.seekToTime(this._seekToOnLoad);
@@ -741,7 +741,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 	setSources:function(master,slave) {
 		var masterRect = {x:850,y:140,w:360,h:550};
 		var slaveRect = {x:10,y:40,w:800,h:600};
-		
+
 		this._unloadVideos();
 
 		if (!master || !master.data || !master.type || !master.type.name) {
@@ -760,7 +760,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			this.setMonoStreamMode(true);
 		}
 	},
-	
+
 	setAutoplay:function() {
 		this._autoplay = true;
 		if (this.masterVideo()) {
@@ -770,12 +770,12 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			this.slaveVideo().setAutoplay(true);
 		}
 	},
-	
+
 	onVideoLoaded:function(sender) {
 		if ((this.isMonostream && this.masterVideo() && this.masterVideo().isReady()) ||
 			(this.masterVideo() && this.masterVideo().isReady() &&
 			 this.slaveVideo() && this.slaveVideo().isReady())) {
-			
+
 			if (this._playOnLoad) {
 				paella.player.play();
 			}
@@ -786,7 +786,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			paella.events.trigger(paella.events.videoReady, { videoContainer: this });
 		}
 	},
-	
+
 	onVideoUnloaded:function(sender) {
 		if (this.isMonostream) {
 			paella.events.trigger(paella.events.videoUnloaded);
@@ -796,7 +796,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			paella.events.trigger(paella.events.videoUnloaded);
 		}
 	},
-	
+
 	_unloadVideos:function() {
 		var master = this.masterVideo();
 		var slave = this.slaveVideo();
@@ -854,10 +854,10 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		this.container.addNode(videoNode);
 		this.sourceData.push(data);
 		this.setupVideo(videoNode,data,type.name,target);
-		
+
 		return true;
 	},
-	
+
 	selectSource:function(videoData,type) {
 		var mp4Source = videoData.sources.mp4;
 		var oggSource = videoData.sources.ogg;
@@ -895,7 +895,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		else if (imageSource && type=="image") {
 			selectedSource = imageSource;
 		}
-		
+
 		return selectedSource;
 	},
 
@@ -928,7 +928,7 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 			else if (stream=='slave') this.currentSlaveVideoData = selectedSource;
 			videoNode.addSource(selectedSource);
 			videoNode.setMetadata(selectedSource);
-			
+
 			paella.userTracking.log("paella:VideoContainer:setupVideo:" + stream, selectedSource);
 		}
 	},
