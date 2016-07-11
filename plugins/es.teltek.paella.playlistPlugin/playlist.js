@@ -47,9 +47,10 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 		while(domElement.hasChildNodes()){
 			domElement.removeChild(domElement.lastChild);
 		}
+		that = this;
 		this.playlistVideos.forEach(function(item){
 			var elem = document.createElement('div');
-			elem.className = "videobutton"+ (item.id == this.currentVideoId ?' playing':'');
+			elem.className = "videobutton"+ (item.id == that.currentVideoId ?' playing':'');
 			elem.innerHTML = item.name;
 			$(elem).click(function(event) {
 				window.location.href=item.url;
