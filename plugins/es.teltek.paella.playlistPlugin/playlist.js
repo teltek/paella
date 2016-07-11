@@ -1,6 +1,8 @@
 Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 	currentPlaylistId:null,
 	currentVideoId:null,
+	currentVideoPos:null,
+	currentVideo:null,
 	playlistVideos:[],
 
 	getAlignment:function() { return 'left'; },
@@ -13,14 +15,28 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 	checkEnabled:function(onSuccess) {
 		this.currentPlaylistId = base.parameters.get("playlistId");
 		this.currentVideoId = base.parameters.get("videoId");
-		if (this.currentPlaylistId && this.currentVideoId){
+		this.currentVideoPos = base.parameters.get("videoPos");
+		if (this.currentPlaylistId && this.currentVideoId && this.currentVideoPos){
 			onSuccess(true);
 		}
 		else {
 			onSuccess(false);
 		}
 	},
-
+	findVideo:function() {
+		var currentVideo = null;
+		var playlistPlugin = this;
+		this.playlistVideos.find(function(item){
+			if(item.id == playlistPlugin.currentVideoId) {
+				currentVideo = item;
+				if(item.pos == playlistPlugin.currentVideoPos) {
+					return true;
+				}
+				return false;
+			}
+		});
+		return currentVideo;
+	},
 	setup:function() {
 		var url = this.config.playlistApi + "/" + this.currentPlaylistId;
 		var playlistPlugin = this;
@@ -28,6 +44,7 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 			{url: url},
 			function(data, contentType, returnCode) {
 				playlistPlugin.playlistVideos = data;
+				playlistPlugin.currentVideo = playlistPlugin.findVideo();
 				//Is there a better way to relaunch buildContent?
 				container = playlistPlugin.containerManager.containers[playlistPlugin.getName()];
 				if(container && container.element)
@@ -47,10 +64,10 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 		while(domElement.hasChildNodes()){
 			domElement.removeChild(domElement.lastChild);
 		}
-		that = this;
+		var playlistPlugin = this;
 		this.playlistVideos.forEach(function(item){
 			var elem = document.createElement('div');
-			elem.className = "videobutton"+ (item.id == that.currentVideoId ?' playing':'');
+			elem.className = "videobutton"+ (item == playlistPlugin.currentVideo  ?' playing':'');
 			elem.innerHTML = item.name;
 			$(elem).click(function(event) {
 				window.location.href=item.url;
@@ -63,7 +80,7 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
 		var playlistPlugin = this;
 		var index = this.playlistVideos.findIndex(
 			function(elem){
-				return elem.id == playlistPlugin.currentVideoId;
+				return elem == playlistPlugin.currentVideo;
 			}
 		);
 		var length = this.playlistVideos.length;
