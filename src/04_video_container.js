@@ -478,11 +478,13 @@ Class ("paella.VideoContainer", paella.VideoContainerBase,{
 		var current = this.currentTime();
 		var end = this.duration();
 		var start = 0;
+		var videoInterval = this.timeupdateInterval*0.001;
 		if (this.trimming.enabled) {
 			end = this.trimming.end;
 			start = parseFloat(this.trimming.start);
 		}
-		if (current>=Math.floor(end) && !this.paused()) {
+
+		if (end - current <= videoInterval && !this.paused()) {
 			var thisClass = this;
 			this.pause();
 			paella.events.trigger(paella.events.endVideo,{videoContainer:thisClass});
