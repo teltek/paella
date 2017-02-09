@@ -2,7 +2,9 @@
     "player":{
         "accessControlClass":"paella.AccessControl",
         "profileFrameStrategy": "paella.ProfileFrameStrategy",
-        "videoQualityStrategy": "paella.BestFitVideoQualityStrategy",
+        "videoQualityStrategy": "paella.LimitedBestFitVideoQualityStrategy",
+        "videoQualityStrategyParams":{ "maxAutoQualityRes":720 },
+        "reloadOnFullscreen": true,
 
         "deprecated-methods":[{"name":"streaming","enabled":true},
                    {"name":"html","enabled":true},
@@ -10,12 +12,18 @@
                    {"name":"image","enabled":true}],
 
         "methods":[
+            { "factory":"ChromaVideoFactory", "enabled":true },
+            { "factory":"WebmVideoFactory", "enabled":true },
             { "factory":"Html5VideoFactory", "enabled":true },
             { "factory":"MpegDashVideoFactory", "enabled":true },
-            { "factory":"RTMPVideoFactory", "enabled":true },
             { "factory":"HLSVideoFactory", "enabled":true },
+            { "factory":"RTMPVideoFactory", "enabled":true },
             { "factory":"ImageVideoFactory", "enabled":true },
-            { "factory":"YoutubeVideoFactory", "enabled":true }
+            { "factory":"YoutubeVideoFactory", "enabled":true },
+            { "factory":"Video360Factory", "enabled":true }
+        ],
+        "audioMethods":[
+            { "factory":"MultiformatAudioFactory", "enabled":true }
         ],
         "audio": {
             "master": 1.0,
@@ -53,7 +61,6 @@
     },
     "plugins":{
         "enablePluginsByDefault": false,
-
         "//**** Instructions: Disable any individual plugin by setting its enable property to false": {"enabled": false},
         "//**** For a list of available plugins and configuration, go to": "https://github.com/polimediaupv/paella/blob/master/doc/plugins.md",
         "list":{
@@ -76,6 +83,8 @@
             "es.upv.paella.viewModePlugin": { "enabled": true },
             "es.upv.paella.volumeRangePlugin":{"enabled":true, "showMasterVolume": true, "showSlaveVolume": false },
             "es.upv.paella.visualAnnotationPlugin": {"enabled":true,"url":"https://media.upv.es/rest/video/"},
+            "es.upv.paella.pipModePlugin": { "enabled":true },
+            "es.upv.paella.ratePlugin": { "enabled":true },
 
             "//****": "Video Overlay Button Plugins",
             "es.upv.paella.liveStreamingIndicatorPlugin":  { "enabled": true },
