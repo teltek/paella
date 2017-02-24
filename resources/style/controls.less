@@ -359,6 +359,7 @@ div {
 	position: fixed;
 	background-color: @backgroundColor;
 	z-index: 99;
+	min-width: 256px;
 	-webkit-background-size: cover;
   	-moz-background-size: cover;
   	-o-background-size: cover;
@@ -396,4 +397,16 @@ div {
 .login-link {
 	margin-top: 20px;
 	margin-bottom: 20px;
+}
+
+video::-internal-media-controls-download-button {
+    display:none;
+}
+
+video::-webkit-media-controls-enclosure {
+    overflow:hidden;
+}
+
+video::-webkit-media-controls-panel {
+    width: calc(100% + 8px); /* Adjust as needed */
 }
