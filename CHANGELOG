@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+* Paella 5.1.3
+
+  * WebGL video players are now compatible with mobile devices.
+
+* Paella 5.1.2
+
+  * Bug fix in es.upv.paella.arrowSlidesNavigatorPlugin
+  
+* Paella 5.1.1
+
+  * Fix bugs in plugin: es.upv.paella.frameCaptionsSearchPlugin
+  * Fix bugs in plugin: es.upv.paella.searchPlugin
 
 * Paella 5.1.0
 
