@@ -60,20 +60,21 @@ Class ("paella.plugins.FootPrintsPlugin",paella.ButtonPlugin,{
 	},
 
     onTimeUpdate:function() {
+    	var self = this;
    		paella.player.videoContainer.currentTime()
 		.then(function(currentTime) {	
 			var videoCurrentTime = Math.round(currentTime + paella.player.videoContainer.trimStart());
-			if (this.inPosition <= videoCurrentTime && videoCurrentTime <= this.inPosition + this.INTERVAL_LENGTH) {
-				this.outPosition = videoCurrentTime;
-				if (this.inPosition + this.INTERVAL_LENGTH === this.outPosition) {
-					this.trackFootPrint(this.inPosition, this.outPosition);
-					this.inPosition = this.outPosition;
+			if (self.inPosition <= videoCurrentTime && videoCurrentTime <= self.inPosition + self.INTERVAL_LENGTH) {
+				self.outPosition = videoCurrentTime;
+				if (self.inPosition + self.INTERVAL_LENGTH === self.outPosition) {
+					self.trackFootPrint(self.inPosition, self.outPosition);
+					self.inPosition = self.outPosition;
 				}
 			}
 			else {
-				this.trackFootPrint(this.inPosition, this.outPosition);
-				this.inPosition = videoCurrentTime;
-				this.outPosition = videoCurrentTime;
+				self.trackFootPrint(self.inPosition, self.outPosition);
+				self.inPosition = videoCurrentTime;
+				self.outPosition = videoCurrentTime;
 			}
 		});
     },
@@ -88,7 +89,7 @@ Class ("paella.plugins.FootPrintsPlugin",paella.ButtonPlugin,{
 		this.loadFootprints();
 		this.footPrintsTimer = new base.Timer(function(timer) {
 			thisClass.loadFootprints();
-			},5000);
+		},5000);
 		this.footPrintsTimer.repeat = true;
 	},
 
@@ -99,33 +100,34 @@ Class ("paella.plugins.FootPrintsPlugin",paella.ButtonPlugin,{
 		}
 	},
 
-    loadFootprints:function () {
-	    var thisClass = this;
+	loadFootprints:function () {
+		var thisClass = this;
 		paella.data.read('footprints',{id:paella.initDelegate.getId()},function(data,status) {
 			var footPrintsData = {};
-			var duration = Math.floor(paella.player.videoContainer.duration());
-			var trimStart = Math.floor(paella.player.videoContainer.trimStart());
+			paella.player.videoContainer.duration().then(function(duration){
+				var trimStart = Math.floor(paella.player.videoContainer.trimStart());
 
-            var lastPosition = -1;
-            var lastViews = 0;
-			for (var i = 0; i < data.length; i++) {
-				position = data[i].position - trimStart;
-				if (position < duration){
-					views = data[i].views;
+				var lastPosition = -1;
+				var lastViews = 0;
+				for (var i = 0; i < data.length; i++) {
+					var position = data[i].position - trimStart;
+					if (position < duration){
+						var views = data[i].views;
 
-					if (position - 1 != lastPosition){
-						for (var j = lastPosition + 1; j < position; j++) {
-							footPrintsData[j] = lastViews;
+						if (position - 1 != lastPosition){
+							for (var j = lastPosition + 1; j < position; j++) {
+								footPrintsData[j] = lastViews;
+							}
 						}
+						footPrintsData[position] = views;
+						lastPosition = position;
+						lastViews = views;
 					}
-					footPrintsData[position] = views;
-					lastPosition = position;
-					lastViews = views;
 				}
-			}
-			thisClass.drawFootPrints(footPrintsData);
+				thisClass.drawFootPrints(footPrintsData);
+			});
 		});
-    },
+	},
 
 	drawFootPrints:function(footPrintsData) {
 		if (this.canvas) {
