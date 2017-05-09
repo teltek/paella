@@ -1,0 +1,23 @@
+{
+    "metadata": {
+        "duration": 0,
+        "title": "JWPLAYER"
+    },
+    "streams": [
+        {
+            "sources": {
+                "jwplayer": [
+                    {
+                        "src": "http://paellaplayer.upv.es/demo/repository/belmar-multiresolution/media/720-presenter.mp4",
+                        "mimetype": "video/mp4",
+                        "res": {
+                            "w": 1280,
+                            "h": 720
+                        }
+                    }
+                ]
+            },
+            "preview": null
+        }
+    ]
+}
