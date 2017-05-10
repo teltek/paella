@@ -1,0 +1,40 @@
+{
+	"metadata": {
+		"duration": 0,
+		"title": "GC-HLS-DUAL-LIVE"
+	},
+	"streams": [
+		{
+			"sources": {
+				"hls": [
+					{
+						"src": "http://tv_codifica.rediris.es/livegc/hlstestpre/playlist.m3u8",
+						"mimetype": "video/mp4",
+						"res": {
+							"w": "1280",
+							"h": "720"
+						},
+						"isLiveStream": true
+					}
+				]
+			},
+			"preview": null            
+		},
+		{
+			"sources": {
+				"hls": [
+					{
+						"src": "http://tv_codifica.rediris.es/livegc/hlstestppt/playlist.m3u8",
+						"mimetype": "video/mp4",
+						"res": {
+							"w": "1280",
+							"h": "720"
+						},
+						"isLiveStream": true
+					}
+				]
+			},
+			"preview": null
+		}
+	]
+}

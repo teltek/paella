@@ -1,0 +1,28 @@
+{
+	"metadata": {
+		"duration": 0,
+		"title": "GC-RTMP-SBS-LIVE"
+	},
+	"streams": [
+		{
+			"sources": {
+				"rtmp": [
+					{
+						"src": {
+                            "server": "rtmp://tv_codifica.rediris.es:1935/livegc",
+                            "stream": "hlstestsbs",             
+							"requiresSubscription": false
+                        },
+						"mimetype": "video/mp4",
+						"res": {
+							"w": "1280",
+							"h": "720"
+						},
+						"isLiveStream": true
+					}
+				]
+			},
+			"preview": null
+		}
+	]
+}
