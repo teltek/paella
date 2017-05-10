@@ -8,12 +8,13 @@
             "sources": {
                 "jwplayer": [
                     {
-                        "src": "http://paellaplayer.upv.es/demo/repository/belmar-multiresolution/media/720-presenter.mp4",
+                        "src": "rtmp://tv_codifica.rediris.es:1935/livegc/hlstestsbs",                        
                         "mimetype": "video/mp4",
                         "res": {
                             "w": 1280,
                             "h": 720
-                        }
+                        },
+						"isLiveStream": true                        
                     }
                 ]
             },
@@ -23,12 +24,13 @@
             "sources": {
                 "jwplayer": [
                     {
-                        "src": "http://paellaplayer.upv.es/demo/repository/belmar-multiresolution/media/720-presenter.mp4",
+                        "src": "rtmp://tv_codifica.rediris.es:1935/livegc/hlstestsbs",                                                
                         "mimetype": "video/mp4",
                         "res": {
                             "w": 1280,
                             "h": 720
-                        }
+                        },
+						"isLiveStream": true                        
                     }
                 ]
             },
