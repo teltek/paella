@@ -50,18 +50,24 @@ Class ("paella.JWPlayerVideo", paella.VideoElementBase,{
                 source = source[0];
                 this._loadDeps()
                     .then(function(jwplayer) {
-
-
                         This._jwplayer = jwplayer(This.identifier).setup({
-                            file: 'https://dls2.uvigo.es/vod/2105/93471.mp4',
+                            file: This._stream.sources.jwplayer[0].src,
+
+                            androidhls: false,
+                            hlshtml: false,
+                            primary: "flash",
+
+
                             autostart: This._autoplay,
                             width: "100%",
                             aspectratio: "16:9",
                             controls: false,
                         });
 
-                        //Add to jwplayer onReady callback
-                        This._readyPromise.resolve();
+
+                        This._jwplayer.on('ready', function(){
+                            This._readyPromise.resolve();
+                        });
 
                         resolve();
                     });
@@ -103,7 +109,7 @@ Class ("paella.JWPlayerVideo", paella.VideoElementBase,{
                     duration: This.video.getDuration(),
                     currentTime: This.video.getPosition(),
                     volume: This.video.getVolume(),
-                    paused: "paused" == This.video.getState(),
+                    paused: !This._playing,
                     ended: "complete" == This.video.getState(),
                     res: {
                         w: stream.res.w,
@@ -116,24 +122,26 @@ Class ("paella.JWPlayerVideo", paella.VideoElementBase,{
     },
 
     play:function() {
-        let This = this;
-        return new Promise((resolve,reject) => {
-            This.video.play();
+        return this._deferredAction(() => {
+            this._playing = true;
+            this.video.play();
         });
     },
 
 
     pause:function() {
         return this._deferredAction(() => {
-            this.video.pause();
+            this._playing = false;
+            this.video.pause(true);
         });
     },
 
 
     isPaused:function() {
         return this._deferredAction(() => {
-            return "paused" == this.video.getState()
+            return !this._playing;
         });
+
     },
 
     duration:function() {
