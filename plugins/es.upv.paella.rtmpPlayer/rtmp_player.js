@@ -89,6 +89,10 @@ Class ("paella.RTMPVideo", paella.VideoElementBase,{
 
 		var domElement = document.createElement('div');
 		this.domElement.appendChild(domElement);
+
+		// W/A to fix GC straming bug        
+		this.domElement.style.height = '100%';
+        
 		domElement.id = id + "Movie";
 		this._swfContainer = domElement;
 
