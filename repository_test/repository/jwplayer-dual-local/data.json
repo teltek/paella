@@ -1,0 +1,40 @@
+{
+    "metadata": {
+        "duration": 0,
+        "title": "JWPLAYER-DUAL"
+    },
+    "streams": [
+        {
+            "sources": {
+                "jwplayer": [
+                    {
+                        "src": "rtmp://10.21.10.88/premas/premas",
+                        "mimetype": "video/mp4",
+                        "res": {
+                            "w": 1920,
+                            "h": 1080
+                        },
+                        "isLiveStream": true
+                    }
+                ]
+            },
+            "preview": null
+        },
+        {
+            "sources": {
+                "jwplayer": [
+                    {
+                        "src": "rtmp://10.21.10.88/pptmas/pptmas",
+                        "mimetype": "video/mp4",
+                        "res": {
+                            "w": 1024,
+                            "h": 768
+                        },
+                        "isLiveStream": true
+                    }
+                ]
+            },
+            "preview": null
+        }
+    ]
+}

@@ -1,0 +1,48 @@
+{
+	"metadata": {
+		"duration": 0,
+		"title": "GC-RTMP-DUAL-LIVE"
+	},
+	"streams": [
+		{
+			"sources": {
+				"rtmp": [
+					{
+						"src": {
+                            "server": "rtmp://10.21.10.88/premas",
+                            "stream": "premas",
+                            "requiresSubscription": false
+                        },
+						"mimetype": "video/x-flv",
+						"res": {
+							"w": "1280",
+							"h": "720"
+						},
+						"isLiveStream": true
+					}
+				]
+			},
+			"preview": null
+		},
+		{
+			"sources": {
+				"rtmp": [
+					{
+						"src": {
+                            "server": "rtmp://10.21.10.88/pptmas",
+                            "stream": "pptmas",
+                            "requiresSubscription": false
+                        },                        
+						"mimetype": "video/x-flv",
+						"res": {
+							"w": "1280",
+							"h": "720"
+						},
+						"isLiveStream": true
+					}
+				]
+			},
+			"preview": null
+		}
+	]
+}
