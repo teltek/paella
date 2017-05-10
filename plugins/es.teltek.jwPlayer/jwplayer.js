@@ -57,6 +57,7 @@ Class ("paella.JWPlayerVideo", paella.VideoElementBase,{
                             hlshtml: false,
                             primary: "flash",
 
+                            stretching: "exactfit",
 
                             autostart: This._autoplay,
                             width: "100%",
