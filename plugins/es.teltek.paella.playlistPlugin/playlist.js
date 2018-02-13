@@ -46,7 +46,7 @@ Class ("paella.plugins.playlistPlugin",paella.ButtonPlugin,{
                 playlistPlugin.playlistVideos = data;
                 playlistPlugin.currentVideo = playlistPlugin.findVideo();
                 //Is there a better way to relaunch buildContent?
-                container = playlistPlugin.containerManager.containers[playlistPlugin.getName()];
+                var container = playlistPlugin.containerManager.containers[playlistPlugin.getName()];
                 if(container && container.element)
                     playlistPlugin.buildContent(container.element);
                 }
