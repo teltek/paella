@@ -32,6 +32,7 @@ Add the paella css and js dependecies:
 		<script type="text/javascript" src="javascript/jquery.js"></script>
 		<script type="text/javascript" src="javascript/lunr.min.js"></script>
 		<script type="text/javascript" src="javascript/require.js"></script>
+		<script type="text/javascript" src="javascript/traceur-runtime.min.js"></script>
 		<script type="text/javascript" src="javascript/paella_player.js"></script>
 
 		<script type="text/javascript" src="resources/bootstrap/js/bootstrap.min.js"></script>
@@ -43,7 +44,7 @@ Add the paella css and js dependecies:
 </html>
 ```
 
-Then add the container where paella is going to load:
+Then add the container where paella is going to be loaded:
 
 ``` HTML
 <!DOCTYPE html>
@@ -58,6 +59,7 @@ Then add the container where paella is going to load:
 		<script type="text/javascript" src="javascript/jquery.js"></script>
 		<script type="text/javascript" src="javascript/lunr.min.js"></script>
 		<script type="text/javascript" src="javascript/require.js"></script>
+		<script type="text/javascript" src="javascript/traceur-runtime.min.js"></script>
 		<script type="text/javascript" src="javascript/paella_player.js"></script>
 
 		<script type="text/javascript" src="resources/bootstrap/js/bootstrap.min.js"></script>
@@ -85,6 +87,7 @@ Finally load Paella using that container:
 		<script type="text/javascript" src="javascript/jquery.js"></script>
 		<script type="text/javascript" src="javascript/lunr.min.js"></script>
 		<script type="text/javascript" src="javascript/require.js"></script>
+		<script type="text/javascript" src="javascript/traceur-runtime.min.js"></script>
 		<script type="text/javascript" src="javascript/paella_player.js"></script>
 
 		<script type="text/javascript" src="resources/bootstrap/js/bootstrap.min.js"></script>
@@ -110,11 +113,11 @@ paella.load(containerId, options)
 
 - containedId
 
-  This is the ID con the div container where paella will load
+  This is the ID of the div container where paella will load
   
 - options
 
-  options is a object that can accept diferent parameters:
+  options is an object that can accept different parameters:
   
   * url
     

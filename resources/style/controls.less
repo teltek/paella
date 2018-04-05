@@ -59,6 +59,32 @@ div {
     user-select: none;
 }
 
+i.button-icon {
+    color: @paella_icons_color;
+    font-size: unit(@paellaIconsFontSizePx,px);
+    padding-left: unit(@paellaIconsPaddingLeftPx,px);
+    line-height: unit(@paellaIconsLineHeightPx,px);
+}
+
+.buttonPlugin {
+    position: relative;
+}
+
+.button-text {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    text-align: center;
+    line-height: unit(@playbackBarButtonHeight * 0.75,px);
+}
+
+i.button-icon.icon-screen {
+    font-size: unit(@paellaIconsFontSizePx * 1.22, px);
+    padding-left: 0px;
+}
+
 #playerContainer {
     background-color: white;
 }
@@ -132,9 +158,9 @@ div {
     width: unit(@playbackBarButtonWidthPx - @playbackBarButtonPadding * 2,px);
     height: unit(@playbackBarButtonHeightPx - @playbackBarButtonPadding * 2, px);
     cursor: pointer;
-    background-image: @paella_icons_image;
+    /*background-image: @paella_icons_image;
     background-size: @paella_icons_bkg_size;
-    background-position: 0px 0px;
+    background-position: 0px 0px;*/
     margin-left: @playbackBarButtonPadding;
     margin-right: @playbackBarButtonPadding;
     margin-top: @playbackBarButtonPadding;
@@ -303,7 +329,7 @@ div {
 }
 
 .paella_messageContainer_closeButton {
-    background-image: url(../images/close_button.png);
+    /*background-image: url(../images/close_button.png);*/
     width:20px;
     height:20px;
     position:absolute;
@@ -311,11 +337,12 @@ div {
     top: 10px;
     right: 10px;
     z-index: 999999999;
-    background-size: 60px 20px;
+    border-radius: 20px;
 }
 
 .paella_messageContainer_closeButton:hover {
-    background-position: -20px;
+    color: white;
+    background-color: black;
 }
 
 .paella_messageContainer_closeButton:active {

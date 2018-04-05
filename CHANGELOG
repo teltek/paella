@@ -1,6 +1,66 @@
 CHANGELOG
 =========
 
+* Paella 5.3.3
+
+  * UX bug fixed in paella.MessageBox
+
+* Paella 5.3.2
+
+  * Bug fixed in paella.MessageBox
+  * Bug fixed in travis scripts
+  * Added Matomo (org.opencast.usertracking.MatomoSaverPlugIn) plugin (thanks to @rrolf)
+
+* Paella 5.3.1
+
+  * Bug fixed in captions load
+
+* Paella 5.3.0
+
+  * New plugin registration system.
+  * Automatic zoom using track 4k
+  * Refactoring and bug fixes
+  * Use 16/9 aspect ratio for audio sources
+  * New plugin: Usertracking xAPI plugin (@dpeite)
+  * New plugin: Usertracking Piwik plugin
+
+* Paella 5.2.13
+
+  * Fixed a bug when loading captions in an not supported format
+
+* Paella 5.2.12
+
+  * Changed function to build localization files
+
+* Paella 5.2.11
+
+  * Fix bug in embed code
+
+* Paella 5.2.10
+
+  * Fix publish scripts
+
+* Paella 5.2.9
+
+  * Bug fixed in arrow slide navigator plugin
+  * Added configUrl parameter to paella.load options
+
+* Paella 5.2.8
+
+  * Bug fixes and improvements
+
+* Paella 5.2.7
+
+  * Improvements and bug fixes in HLS.
+  
+* Paella 5.2.6
+
+  * HLS streams in Safari for macOS now uses the native hls player.
+  
+* Paella 5.2.5
+
+  * HLS streams limited to one simultaneous stream on iOS, to prevent memory problems on old iOS devices.
+
 * Paella 5.2.4
 
   * Bug fixed in zoom plugin, in Safari 11 for macOS 10.13
