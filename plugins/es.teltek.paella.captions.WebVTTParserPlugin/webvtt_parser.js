@@ -26,7 +26,7 @@
                     skip = true;
                     continue;
                 }
-                if (/^(([0-9]{2}:)?[0-9]{2}:[0-9]{2}.[0-9]{3} --> ([0-9]{2}:)?[0-9]{2}:[0-9]{2}.[0-9]{3})/.test(ll)) {
+                if (/^(([0-9]+:)?[0-9]{2}:[0-9]{2}.[0-9]{3} --> ([0-9]+:)?[0-9]{2}:[0-9]{2}.[0-9]{3})/.test(ll)) {
                     skip = false;
                     if (c != undefined) {
                         captions.push(c);
@@ -45,7 +45,7 @@
                     if (c.content === undefined) {
                         c.content = ll;
                     } else {
-                        c.content += "<p></p>" + ll;
+                        c.content += "<br/>" + ll;
                     }
                 }
             }
@@ -60,7 +60,7 @@
         parseTimeTextToSeg: function (ttime) {
             var nseg = 0;
             var factor = 1;
-            ttime = /(([0-9]{2}:)?[0-9]{2}:[0-9]{2}.[0-9]{3})/.exec(ttime);
+            ttime = /(([0-9]+:)?[0-9]{2}:[0-9]{2}.[0-9]{3})/.exec(ttime);
             var split = ttime[0].split(":");
             for (var i = split.length - 1; i >= 0; i--) {
                 factor = Math.pow(60, (split.length - 1 - i));
