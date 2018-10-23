@@ -22,16 +22,9 @@ paella.addPlugin(function() {
             paella.player.videoContainer.currentTime().then(function(duration) {
                 paella.player.videoContainer.duration().then(function(d) {
                       duration = parseInt(duration);
-
                       thisClass.setText(thisClass.secondsToHours(duration) + " / " + thisClass.secondsToHours(parseInt(d)));
                 });
 		    });
-        }
-
-		buildContent(domElement) {
-            let durationContainer = document.createElement('div');
-            durationContainer.className = 'durationContainer';
-            domElement.appendChild(durationContainer);
         }
 
         getText() {
