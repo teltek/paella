@@ -28,7 +28,7 @@ paella.addPlugin(function() {
         }
 
         getText() {
-            return "";
+            return "00:00 / 00:00";
         }
 
         secondsToHours(sec_numb) {
