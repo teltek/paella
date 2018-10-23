@@ -5,7 +5,7 @@ paella.addPlugin(function() {
 		getSubclass() { return 'integratedDurationButton'; }
 		getName() { return "es.teltek.paella.integratedDurationPlugin"; }
 		getDefaultToolTip() { return base.dictionary.translate("Duration"); }
-		getIndex() {return 141;}
+		getIndex() {return 190;}
 
 		checkEnabled(onSuccess) {
 			onSuccess(true);
