@@ -67,7 +67,7 @@
       "//****": "Button Plugins",
       "edu.harvard.dce.paella.flexSkipPlugin": {"enabled":true, "direction": "Rewind", "seconds": 10},
       "edu.harvard.dce.paella.flexSkipForwardPlugin": {"enabled":true, "direction": "Forward", "seconds": 30},
-      "es.teltek.paella.integratedDurationPlugin": {"enabled":true},
+      "es.teltek.paella.integratedDurationPlugin": {"enabled":false},
       "es.upv.paella.captionsPlugin": {"enabled":true, "searchOnCaptions":true},
       "es.upv.paella.extendedTabAdapterPlugin": {"enabled":true},
       "es.upv.paella.footprintsPlugin": {"enabled":false},
