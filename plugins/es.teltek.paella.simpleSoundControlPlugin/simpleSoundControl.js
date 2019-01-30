@@ -29,7 +29,7 @@ paella.addPlugin(function () {
             this._inputMaster = null;
             this._control_NotMyselfEvent = true;
             this._storedValue = false;
-            let enabled = !base.userAgent.browser.IsMobileVersion;
+            let enabled = true;
             onSuccess(enabled);
         }
 
