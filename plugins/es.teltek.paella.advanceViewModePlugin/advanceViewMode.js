@@ -80,10 +80,6 @@ paella.addPlugin(function () {
             return 'right';
         }
 
-        getDefaultToolTip() {
-            return "Layout advance mode";
-        }
-
         setup() {
             paella.player.videoContainer.videoPlayers()
                 .then((players) => {
