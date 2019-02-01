@@ -95,20 +95,18 @@ paella.addPlugin(function () {
 
         action() {
             var thisClass = this;
-            var target = event.target;
 
-            if (target.id === '' || 'soundRange' !== target.id) {
-                paella.player.videoContainer.mainAudioPlayer().volume()
-                    .then(function (v) {
-                        if (v === 0) {
-                            paella.player.videoContainer.setVolume({master: 1});
-                        } else {
-                            paella.player.videoContainer.setVolume({master: 0});
-                        }
+            paella.player.videoContainer.mainAudioPlayer().volume()
+                .then(function (v) {
+                    if (v === 0) {
+                        paella.player.videoContainer.setVolume({master: 1});
+                    } else {
+                        paella.player.videoContainer.setVolume({master: 0});
+                    }
 
-                        thisClass.updateClass();
-                    });
-            }
+                    thisClass.updateClass();
+                });
+
         }
 
         updateVolumeOnEvent(volume) {
