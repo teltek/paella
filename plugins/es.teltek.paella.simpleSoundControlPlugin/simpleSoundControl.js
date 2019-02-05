@@ -93,8 +93,13 @@ paella.addPlugin(function () {
             });
         }
 
-        action() {
+        action(_, event) {
             var thisClass = this;
+
+            var target = event.target;
+            if (target.id !== '' && 'soundRange' === target.id) {
+                return;
+            }
 
             paella.player.videoContainer.mainAudioPlayer().volume()
                 .then(function (v) {

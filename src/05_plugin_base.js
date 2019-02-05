@@ -603,17 +603,17 @@
 		elem.appendChild(icon);
 		plugin._i = icon;
 			
-		function onAction(self) {
+		function onAction(self, event) {
 			paella.userTracking.log("paella:button:action", self.plugin.getName());
-			self.plugin.action(self);
+			self.plugin.action(self, event);
 		}
 		
 		$(elem).click(function(event) {
-			onAction(this);
+			onAction(this, event);
 		});
 		$(elem).keyup(function(event) {
 			if (event.keyCode == 13) {
-				onAction(this);
+				onAction(this, event);
 			}
 		});
 		return elem;
