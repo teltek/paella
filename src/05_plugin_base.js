@@ -566,6 +566,22 @@
 	
 		isPopUpOpen:function() {
 			return (this.button.popUpIdentifier == this.containerManager.currentContainerId);
+		},
+	
+		getExpandableContent:function() {
+			return null;
+		},
+
+		expand:function() {
+			if (this._expand) {
+				$(this._expand).show();
+			}
+		},
+
+		contract:function() {
+			if (this._expand) {
+				$(this._expand).hide();
+			}
 		}
 	});
 	
@@ -588,7 +604,13 @@
 		var elem = document.createElement('div');
 		elem.className = plugin.getClassName();
 		elem.id = id;
-		elem.innerHTML = '<span class="button-text">' + plugin.getText() + '</span>';
+
+		let buttonText = document.createElement('span');
+		buttonText.className = "button-text";
+		buttonText.innerHTML = plugin.getText();
+		buttonText.plugin = plugin;
+		elem.appendChild(buttonText);
+
 		elem.setAttribute("tabindex", 1000+plugin.getIndex());
 		elem.setAttribute("alt", "");
 		elem.setAttribute("role", "button");
@@ -600,6 +622,7 @@
 
 		let icon = document.createElement('i');
 		icon.className = 'button-icon ' + plugin.getIconClass();
+		icon.plugin = plugin;
 		elem.appendChild(icon);
 		plugin._i = icon;
 			
@@ -618,7 +641,22 @@
 		});
 		return elem;
 	};
-	
+
+
+	paella.ButtonPlugin.BuildPluginExpand = function(plugin,id) {
+		let expandContent = plugin.getExpandableContent();
+		if (expandContent) {
+			let expand = document.createElement('span');
+			expand.plugin = plugin;
+			expand.className = 'expandable-content ' + plugin.getClassName();
+			plugin._expand = expand;
+			expand.appendChild(expandContent);
+			$(plugin._expand).hide();
+			return expand;
+		}
+		return null;
+	}
+
 	paella.ButtonPlugin.buildPluginPopUp = function(parent,plugin,id) {
 		plugin.subclass = plugin.getSubclass();
 		var elem = document.createElement('div');

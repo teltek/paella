@@ -759,6 +759,7 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 
 		this.video.preload = "auto";
 		this.video.setAttribute("playsinline","");
+		this.video.setAttribute("tabindex","-1");
 
 		function onProgress(event) {
 			if (!This._ready && This.video.readyState==4) {
