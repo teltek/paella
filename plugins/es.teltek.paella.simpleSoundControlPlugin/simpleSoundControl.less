@@ -118,3 +118,11 @@ input[type=range]:focus::-ms-fill-upper {
   background: #cc0000;
   outline: none;
 }
+
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    .range input[type=range] {
+        margin: 0 !important;
+        max-height: 100% !important;
+        padding-top: 0;
+    }
+}
