@@ -1,0 +1,28 @@
+.simpleSoundButton {
+  display:block;
+  width:100px;
+  background: transparent !important;
+}
+
+@media (max-width:768px) {
+  .simpleSoundButton {
+    display:block;
+    width:30px;
+    background: transparent !important;
+  }
+  .simpleSoundButton .range {
+    display:none;
+  }
+}
+
+.simpleSoundButton .range {
+  width: 70%;
+  float: right;
+}
+
+.simpleSoundButton .range input[type=range] {
+  display: block;
+  margin: 13px 0;
+  max-height: 4px;
+}
+
