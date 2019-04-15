@@ -32,7 +32,7 @@ paella.addPlugin(function() {
         let wrapper = videoPlayer.parent;
         let wrapperDom = wrapper.domElement;
 
-        let zoomButton = document.createElement('button');
+        let zoomButton = document.createElement('div');
         wrapperDom.appendChild(zoomButton);
         zoomButton.className = "videoZoomButton btn zoomIn";
         zoomButton.innerHTML = '<i class="glyphicon glyphicon-zoom-in"></i>'
@@ -44,7 +44,7 @@ paella.addPlugin(function() {
             setTimeout(() => paella.player.videoContainer.enablePlayOnClick(),10);
         });
 
-        zoomButton = document.createElement('button');
+        zoomButton = document.createElement('div');
         wrapperDom.appendChild(zoomButton);
         zoomButton.className = "videoZoomButton btn zoomOut";
         zoomButton.innerHTML = '<i class="glyphicon glyphicon-zoom-out"></i>'
@@ -72,10 +72,11 @@ paella.addPlugin(function() {
             var thisClass = this;
             this._thumbnails = [];
             this._visible = false;
+            this._available = false;
             function checkVisibility() {
                 let buttons = $('.videoZoomButton');
                 let thumbs = $('.videoZoom');
-                if (this._visible) {
+                if (this._visible && this._available) {
                     buttons.show();    
                     thumbs.show();
                 }
@@ -85,34 +86,33 @@ paella.addPlugin(function() {
                 }
             }
 
-            paella.player.videoContainer.videoPlayers()
-                .then((players) => {
-                    players.forEach((player,index) => {
-                        if (player.allowZoom()) {
-                            this._visible = player.zoomAvailable();
-                            setupButtons.apply(this,[player]);
-                            player.supportsCaptureFrame().then((supports) => {
-                                if (supports) {
-                                    let thumbContainer = document.createElement('div');
-                                    thumbContainer.className = "zoom-container"
-                                    let thumb = getThumbnailContainer.apply(this,[index]);
-                                    let zoomRect = getZoomRect.apply(this);
-                                    this.button.appendChild(thumbContainer);
-                                    thumbContainer.appendChild(thumb);
-                                    thumbContainer.appendChild(zoomRect);
-                                    $(thumbContainer).hide();
-                                    this._thumbnails.push({
-                                        player:player,
-                                        thumbContainer:thumbContainer,
-                                        zoomRect:zoomRect,
-                                        canvas:thumb
-                                    });
-                                    checkVisibility.apply(this);
-                                }
-                            })
+            let players = paella.player.videoContainer.streamProvider.videoPlayers;
+            players.forEach((player,index) => {
+                if (player.allowZoom()) {
+                    this._available = player.zoomAvailable();
+                    this._visible = this._available;
+                    setupButtons.apply(this,[player]);
+                    player.supportsCaptureFrame().then((supports) => {
+                        if (supports) {
+                            let thumbContainer = document.createElement('div');
+                            thumbContainer.className = "zoom-container"
+                            let thumb = getThumbnailContainer.apply(this,[index]);
+                            let zoomRect = getZoomRect.apply(this);
+                            this.button.appendChild(thumbContainer);
+                            thumbContainer.appendChild(thumb);
+                            thumbContainer.appendChild(zoomRect);
+                            $(thumbContainer).hide();
+                            this._thumbnails.push({
+                                player:player,
+                                thumbContainer:thumbContainer,
+                                zoomRect:zoomRect,
+                                canvas:thumb
+                            });
+                            checkVisibility.apply(this);
                         }
-                    });
-                });
+                    })
+                }
+            });
             
             let update = false;
             paella.events.bind(paella.events.play,(evt) => {
@@ -159,7 +159,18 @@ paella.addPlugin(function() {
             });
 
             paella.events.bind(paella.events.zoomAvailabilityChanged, (evt,target) => {
+                this._available = target.available;
                 this._visible = target.available;
+                checkVisibility.apply(this);
+            });
+
+            paella.events.bind(paella.events.controlBarDidHide, () => {
+                this._visible = false;
+                checkVisibility.apply(this);
+            });
+
+            paella.events.bind(paella.events.controlBarDidShow, () => {
+                this._visible = true;
                 checkVisibility.apply(this);
             });
         }
@@ -185,19 +196,18 @@ paella.addPlugin(function() {
                                     paella.player.config.player.videoZoom &&
                                     paella.player.config.player.videoZoom.minWindowSize) || 600; }
         getName() { return "es.upv.paella.videoZoomToolbarPlugin"; }
-        getDefaultToolTip() { return base.dictionary.translate("Change theme"); }
+        getDefaultToolTip() { return base.dictionary.translate("Set video zoom"); }
         getButtonType() { return paella.ButtonPlugin.type.popUpButton; }
 
         checkEnabled(onSuccess) {
-            paella.player.videoContainer.videoPlayers()
-                .then((players) => {
-                    let pluginData = paella.player.config.plugins.list["es.upv.paella.videoZoomToolbarPlugin"];
-                    let playerIndex = pluginData.targetStreamIndex;
-                    this.targetPlayer = players.length>playerIndex ? players[playerIndex] : null;
-                    onSuccess(paella.player.config.player.videoZoom.enabled &&
-                              this.targetPlayer &&
-                              this.targetPlayer.allowZoom());
-                });
+            let players = paella.player.videoContainer.streamProvider.videoPlayers;
+            let pluginData = paella.player.config.plugins.list["es.upv.paella.videoZoomToolbarPlugin"];
+            let playerIndex = pluginData.targetStreamIndex;
+            this.targetPlayer = players.length>playerIndex ? players[playerIndex] : null;
+            onSuccess(paella.player.config.player.videoZoom.enabled &&
+                        this.targetPlayer &&
+                        this.targetPlayer.allowZoom());
+    
         }
         
         buildContent(domElement) {

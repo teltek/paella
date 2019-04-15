@@ -14,6 +14,7 @@
 	permissions and limitations under the License.
 */
 
+(() => {
 
 paella.Profiles = {
 	profileList: null,
@@ -34,15 +35,15 @@ paella.Profiles = {
 		this.loadProfileList(function(data){		
 			var profileData;
 			if(data[profileName] ){
-			    // Successful mapping
-			    profileData = data[profileName];
+				// Successful mapping
+				profileData = data[profileName];
 			} else if (data[defaultProfile]) {
-			    // Fallback to default profile
-			    profileData = data[defaultProfile];
+				// Fallback to default profile
+				profileData = data[defaultProfile];
 			} else {
-			    // Unable to find or map defaultProfile in profiles.json
-			    base.log.debug("Error loading the default profile. Check your Paella Player configuration");
-			    return false;
+				// Unable to find or map defaultProfile in profiles.json
+				base.log.debug("Error loading the default profile. Check your Paella Player configuration");
+				return false;
 			}
 			onSuccessFunction(profileData);
 		});
@@ -71,40 +72,46 @@ paella.Profiles = {
 	}
 };
 
-Class ("paella.RelativeVideoSize", {
-	w:1280,h:720,
-
-	proportionalHeight:function(newWidth) {
+class RelativeVideoSize {
+	get w() { return this._w || 1280; }
+	set w(v) { this._w = v; }
+	get h() { return this._h || 720; }
+	set h(v) { this._h = v; }
+	
+	proportionalHeight(newWidth) {
 		return Math.floor(this.h * newWidth / this.w);
-	},
+	}
 
-	proportionalWidth:function(newHeight) {
+	proportionalWidth(newHeight) {
 		return Math.floor(this.w * newHeight / this.h);
-	},
+	}
 
-	percentVSize:function(pxSize) {
+	percentVSize(pxSize) {
 		return pxSize * 100 / this.h;
-	},
+	}
 
-	percentWSize:function(pxSize) {
+	percentWSize(pxSize) {
 		return pxSize * 100 / this.w;
-	},
+	}
 
-	aspectRatio:function() {
+	aspectRatio() {
 		return this.w/this.h;
 	}
-});
+}
+
+paella.RelativeVideoSize = RelativeVideoSize;
 
 
 
-Class ("paella.VideoRect", paella.DomNode, {
-	_rect:null,
-
-	initialize:function(id, domType, left, top, width, height) {
+class VideoRect extends paella.DomNode {
+	
+	constructor(id, domType, left, top, width, height) {
+		super(domType,id,{});
+		
 		let zoomSettings = paella.player.config.player.videoZoom || {};
 		let zoomEnabled = (zoomSettings.enabled!==undefined ? zoomSettings.enabled : true) && this.allowZoom();
-
-		this.parent(domType,id,zoomEnabled ? {width:this._zoom + '%',height:"100%",position:'absolute'} : { width:"100%", height:"100%" });
+		this.style = zoomEnabled ? {width:this._zoom + '%',height:"100%",position:'absolute'} : { width:"100%", height:"100%" };
+		this._rect = null;
 
 		let eventCapture = document.createElement('div');
 		setTimeout(() => this.domElement.parentElement.appendChild(eventCapture), 10);
@@ -139,7 +146,7 @@ Class ("paella.VideoRect", paella.DomNode, {
 			this._mouseCenter = { x:0, y:0 };
 			this._mouseDown = { x:0, y:0 };
 			this._zoomOffset = { x:0, y: 0 };
-			this._maxZoom = zoomSettings.max || 400;
+			this._maxZoom = zoomSettings.max || 400;
 			$(this.domElement).css({
 				width: "100%",
 				height: "100%",
@@ -469,13 +476,13 @@ Class ("paella.VideoRect", paella.DomNode, {
 				this.drag = false;
 			});
 		}
-	},
+	}
 
-	allowZoom: function() {
+	allowZoom() {
 		return true;
-	},
+	}
 
-	setZoom: function(zoom,left,top,tween=0) {
+	setZoom(zoom,left,top,tween=0) {
 		if (this.zoomAvailable()) {
 			this._zoomOffset.x = left;
 			this._zoomOffset.y = top;
@@ -500,251 +507,240 @@ Class ("paella.VideoRect", paella.DomNode, {
 
 			paella.events.trigger(paella.events.videoZoomChanged,{ video:this });
 		}
-	},
+	}
 
-	captureFrame: function() {
+	captureFrame() {
 		return Promise.resolve(null);
-	},
+	}
 
-	supportsCaptureFrame: function() {
+	supportsCaptureFrame() {
 		return Promise.resolve(false);
-	},
+	}
 
 	// zoomAvailable will only return true if the zoom is enabled, the
 	// video plugin supports zoom and the current video resolution is higher than
 	// the current video size
-	zoomAvailable: function() {
+	zoomAvailable() {
 		return this.allowZoom() && this._zoomAvailable;
-	},
+	}
 
-	disableEventCapture: function() {
+	disableEventCapture() {
 		this.eventCapture.style.pointerEvents = 'none';
-	},
+	}
 
-	enableEventCapture: function() {
+	enableEventCapture() {
 		this.eventCapture.style.pointerEvents = '';
 	}
-});
-
-function paella_DeferredResolved(param) {
-	return new Promise((resolve) => {
-		resolve(param);
-	});
 }
 
-function paella_DeferredRejected(param) {
-	return new Promise((resolve,reject) => {
-		reject(param);
-	});
-}
+paella.VideoRect = VideoRect;
 
-function paella_DeferredNotImplemented () {
-	return paella_DeferredRejected(new Error("not implemented"));
-}
+class VideoElementBase extends paella.VideoRect {
 
-
-
-Class ("paella.VideoElementBase", paella.VideoRect,{
-	_ready:false,
-	_autoplay:false,
-	_stream:null,
-	_videoQualityStrategy:null,
-
-
-	initialize:function(id,stream,containerType,left,top,width,height) {
+	constructor(id,stream,containerType,left,top,width,height) {
+		super(id, containerType, left, top, width, height);
+		
 		this._stream = stream;
-		this.parent(id, containerType, left, top, width, height);
-		Object.defineProperty(this,'ready',{
-			get:function() { return this._ready; }
-		});
 
-		Object.defineProperty(this,'stream',{
-			get: function() {
-				return this._stream;
-			}
-		});
+		this._ready = false;
+		this._autoplay = false;
+		this._videoQualityStrategy = null;
 		
 		if (this._stream.preview) this.setPosterFrame(this._stream.preview);
-	},
+	}
 
-	defaultProfile:function() {
+	get ready() { return this._ready; }
+	get stream() { return this._stream; }
+
+	defaultProfile() {
 		return null;
-	},
+	}
 
 	// Initialization functions
-	setVideoQualityStrategy:function(strategy) {
+	setVideoQualityStrategy(strategy) {
 		this._videoQualityStrategy = strategy;
-	},
+	}
 
-	setPosterFrame:function(url) {
+	setPosterFrame(url) {
 		base.log.debug("TODO: implement setPosterFrame() function");
-	},
+	}
 
-	setAutoplay:function(autoplay) {
+	setAutoplay(autoplay) {
 		this._autoplay = autoplay;
-	},
+	}
 
-	setMetadata:function(data) {
+	setMetadata(data) {
 		this._metadata = data;
-	},
+	}
 
-	load:function() {
+	load() {
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	supportAutoplay:function() {
+	supportAutoplay() {
 		return true;
-	},
+	}
 
 	// Playback functions
-	getVideoData:function() {
+	getVideoData() {
 		return paella_DeferredNotImplemented();
-	},
+	}
 	
-	play:function() {
+	play() {
 		base.log.debug("TODO: implement play() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	pause:function() {
+	pause() {
 		base.log.debug("TODO: implement pause() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	isPaused:function() {
+	isPaused() {
 		base.log.debug("TODO: implement isPaused() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	duration:function() {
+	duration() {
 		base.log.debug("TODO: implement duration() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	setCurrentTime:function(time) {
+	setCurrentTime(time) {
 		base.log.debug("TODO: implement setCurrentTime() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	currentTime:function() {
+	currentTime() {
 		base.log.debug("TODO: implement currentTime() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	setVolume:function(volume) {
+	setVolume(volume) {
 		base.log.debug("TODO: implement setVolume() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	volume:function() {
+	volume() {
 		base.log.debug("TODO: implement volume() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	setPlaybackRate:function(rate) {
+	setPlaybackRate(rate) {
 		base.log.debug("TODO: implement setPlaybackRate() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	playbackRate: function() {
+	playbackRate() {
 		base.log.debug("TODO: implement playbackRate() function in your VideoElementBase subclass");
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	getQualities:function() {
+	getQualities() {
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	setQuality:function(index) {
+	setQuality(index) {
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	getCurrentQuality:function() {
+	getCurrentQuality() {
 		return paella_DeferredNotImplemented();
-	},
+	}
 	
-	unload:function() {
+	unload() {
 		this._callUnloadEvent();
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	getDimensions:function() {
+	getDimensions() {
 		return paella_DeferredNotImplemented();	// { width:X, height:Y }
-	},
+	}
 
-	goFullScreen:function() {
+	goFullScreen() {
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	freeze:function(){
+	freeze(){
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	unFreeze:function(){
+	unFreeze(){
 		return paella_DeferredNotImplemented();
-	},
+	}
 
+	disable(isMainAudioPlayer) {
+		console.log("Disable video requested");
+	}
 
+	enable(isMainAudioPlayer) {
+		console.log("Enable video requested");
+	}
 
 	// Utility functions
-	setClassName:function(className) {
+	setClassName(className) {
 		this.domElement.className = className;
-	},
+	}
 
-	_callReadyEvent:function() {
+	_callReadyEvent() {
 		paella.events.trigger(paella.events.singleVideoReady, { sender:this });
-	},
+	}
 
-	_callUnloadEvent:function() {
+	_callUnloadEvent() {
 		paella.events.trigger(paella.events.singleVideoUnloaded, { sender:this });
 	}
-});
+}
 
-Class ("paella.EmptyVideo", paella.VideoElementBase,{
-	initialize:function(id,stream,left,top,width,height) {
-		this.parent(id,stream,'div',left,top,width,height);
-	},
+paella.VideoElementBase = VideoElementBase;
+
+class EmptyVideo extends paella.VideoElementBase {
+	constructor(id,stream,left,top,width,height) {
+		super(id,stream,'div',left,top,width,height);
+	}
 
 	// Initialization functions
-	setPosterFrame:function(url) {},
-	setAutoplay:function(auto) {},
-	load:function() {return paella_DeferredRejected(new Error("no such compatible video player")); },
-	play:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	pause:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	isPaused:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	duration:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	setCurrentTime:function(time) { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	currentTime:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	setVolume:function(volume) { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	volume:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	setPlaybackRate:function(rate) { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	playbackRate: function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	unFreeze:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	freeze:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	unload:function() { return paella_DeferredRejected(new Error("no such compatible video player")); },
-	getDimensions:function() { return paella_DeferredRejected(new Error("no such compatible video player")); }
-});
+	setPosterFrame(url) {}
+	setAutoplay(auto) {}
+	load() {return paella_DeferredRejected(new Error("no such compatible video player")); }
+	play() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	pause() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	isPaused() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	duration() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	setCurrentTime(time) { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	currentTime() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	setVolume(volume) { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	volume() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	setPlaybackRate(rate) { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	playbackRate() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	unFreeze() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	freeze() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	unload() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+	getDimensions() { return paella_DeferredRejected(new Error("no such compatible video player")); }
+}
 
-Class ("paella.videoFactories.EmptyVideoFactory", paella.VideoFactory, {
-	isStreamCompatible:function(streamData) {
+paella.EmptyVideo = EmptyVideo;
+
+class EmptyVideoFactory extends paella.VideoFactory {
+	isStreamCompatible(streamData) {
 		return true;
-	},
+	}
 
-	getVideoObject:function(id, streamData, rect) {
+	getVideoObject(id, streamData, rect) {
 		return new paella.EmptyVideo(id, streamData, rect.x, rect.y, rect.w, rect.h);
 	}
-});
+}
 
-Class ("paella.Html5Video", paella.VideoElementBase,{
-	_posterFrame:null,
-	_currentQuality:null,
-	_autoplay:false,
-	_streamName:null,
+paella.videoFactories.EmptyVideoFactory = EmptyVideoFactory;
 
-	initialize:function(id,stream,left,top,width,height,streamName) {
-		this.parent(id,stream,'video',left,top,width,height);
+class Html5Video extends paella.VideoElementBase {
+	constructor(id,stream,left,top,width,height,streamName) {
+		super(id,stream,'video',left,top,width,height);
+
+		this._posterFrame = null;
+		this._currentQuality = null;
+		this._autoplay = false;
+
 		this._streamName = streamName || 'mp4';
-		var This = this;
 		this._playbackRate = 1;
 
 		if (this._stream.sources[this._streamName]) {
@@ -753,35 +749,56 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 			});
 		}
 
-		Object.defineProperty(this, 'video', {
-			get:function() { return This.domElement; }
-		});
-
 		this.video.preload = "auto";
 		this.video.setAttribute("playsinline","");
+		this.video.setAttribute("tabindex","-1");
 
 		function onProgress(event) {
-			if (!This._ready && This.video.readyState==4) {
-				This._ready = true;
-				if (This._initialCurrentTipe!==undefined) {
-					This.video.currentTime = This._initialCurrentTime;
-					delete This._initialCurrentTime;
+			if (!this._ready && this.video.readyState==4) {
+				this._ready = true;
+				if (this._initialCurrentTipe!==undefined) {
+					this.video.currentTime = this._initialCurrentTime;
+					delete this._initialCurrentTime;
 				}
-				This._callReadyEvent();
+				this._callReadyEvent();
 			}
 		}
 
-		function evtCallback(event) { onProgress.apply(This,event); }
+
+		let evtCallback = (event) => { onProgress.apply(this,[event]); }
 
 		$(this.video).bind('progress', evtCallback);
 		$(this.video).bind('loadstart',evtCallback);
 		$(this.video).bind('loadedmetadata',evtCallback);
-        $(this.video).bind('canplay',evtCallback);
+		$(this.video).bind('canplay',evtCallback);
 		$(this.video).bind('oncanplay',evtCallback);
-	},
+
+		// Save current time to resume video
+		$(this.video).bind('timeupdate', (evt) => {
+			this._resumeCurrentTime = this.video.currentTime;
+		});
 
 
-	_deferredAction:function(action) {
+		$(this.video).bind('emptied', (evt) => {
+			if (this._resumeCurrentTime && !isNaN(this._resumeCurrentTime)) {
+				this.video.currentTime = this._resumeCurrentTime;
+			}
+		});
+		
+		// Fix safari setQuelity bug
+		if (paella.utils.userAgent.browser.Safari) {
+			$(this.video).bind('canplay canplaythrough', (evt) => {
+				this._resumeCurrentTime && (this.video.currentTime = this._resumeCurrentTime);
+			});
+		}
+	}
+	
+	get video() { return this.domElement; }
+
+	get ready() { return this.video.readyState>=3; }
+
+
+	_deferredAction(action) {
 		return new Promise((resolve,reject) => {
 			function processResult(actionResult) {
 				if (actionResult instanceof Promise) {
@@ -798,14 +815,13 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 			}
 			else {
 				$(this.video).bind('canplay',() => {
-					this._ready = true;
 					processResult(action());
 				});
 			}
 		});
-	},
+	}
 
-	_getQualityObject:function(index, s) {
+	_getQualityObject(index, s) {
 		return {
 			index: index,
 			res: s.res,
@@ -814,9 +830,9 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 			shortLabel:function() { return this.res.w==0 ? "auto" : this.res.h + "p"; },
 			compare:function(q2) { return this.res.w*this.res.h - q2.res.w*q2.res.h; }
 		};
-	},
+	}
 
-	captureFrame: function() {
+	captureFrame() {
 		return new Promise((resolve) => {
 			resolve({
 				source:this.video,
@@ -824,14 +840,14 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 				height:this.video.videoHeight
 			});
 		});
-	},
+	}
 
-	supportsCaptureFrame: function() {
+	supportsCaptureFrame() {
 		return Promise.resolve(true);
-	},
+	}
 
 	// Initialization functions
-	getVideoData:function() {
+	getVideoData() {
 		var This = this;
 		return new Promise((resolve,reject) => {
 			this._deferredAction(() => {
@@ -848,20 +864,20 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 				});
 			});
 		});
-	},
+	}
 	
-	setPosterFrame:function(url) {
+	setPosterFrame(url) {
 		this._posterFrame = url;
-	},
+	}
 
-	setAutoplay:function(auto) {
+	setAutoplay(auto) {
 		this._autoplay = auto;
 		if (auto && this.video) {
 			this.video.setAttribute("autoplay",auto);
 		}
-	},
+	}
 
-	load:function() {
+	load() {
 		var This = this;
 		var sources = this._stream.sources[this._streamName];
 		if (this._currentQuality===null && this._videoQualityStrategy) {
@@ -869,7 +885,7 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 		}
 
 		var stream = this._currentQuality<sources.length ? sources[this._currentQuality]:null;
-		this.video.innerHTML = "";
+		this.video.innerText = "";
 		if (stream) {
 			var sourceElem = this.video.querySelector('source');
 			if (!sourceElem) {
@@ -885,16 +901,31 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 			this.video.load();
 			this.video.playbackRate = this._playbackRate;
 
-            return this._deferredAction(function() {
-                return stream;
-            });
+			return this._deferredAction(function() {
+				return stream;
+			});
 		}
 		else {
 			return paella_DeferredRejected(new Error("Could not load video: invalid quality stream index"));
 		}
-	},
+	}
 
-	getQualities:function() {
+	disable(isMainAudioPlayer) {
+		//if (isMainAudioPlayer) return;
+		//this._isDisabled = true;
+		//this._playState = !this.video.paused;
+		//this.video.pause();
+	}
+
+	enable(isMainAudioPlayer) {
+		//if (isMainAudioPlayer) return;
+		//this._isDisabled = false;
+		//if (this._playState) {
+		//	this.video.play();
+		//}
+	}
+
+	getQualities() {
 		return new Promise((resolve,reject) => {
 			setTimeout(() => {
 				var result = [];
@@ -907,9 +938,9 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 				resolve(result);
 			},10);
 		});
-	},
+	}
 
-	setQuality:function(index) {
+	setQuality(index) {
 		return new Promise((resolve) => {
 			var paused = this.video.paused;
 			var sources = this._stream.sources[this._streamName];
@@ -937,53 +968,63 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 					this.video.currentTime = currentTime;
 				});
 		});
-	},
+	}
 
-	getCurrentQuality:function() {
+	getCurrentQuality() {
 		return new Promise((resolve) => {	
 			resolve(this._getQualityObject(this._currentQuality,this._stream.sources[this._streamName][this._currentQuality]));
 		});
-	},
+	}
 
-	play:function() {
-        return this._deferredAction(() => {
-            return this.video.play();
-        });
-	},
+	play() {
+		return this._deferredAction(() => {
+			if (!this._isDisabled) {
+				return this.video.play();
+			}
+			else {
+				return Promise.resolve();
+			}
+		});
+	}
 
-	pause:function() {
-        return this._deferredAction(() => {
-            return this.video.pause();
-        });
-	},
+	pause() {
+		return this._deferredAction(() => {
+			if (!this._isDisabled) {
+				return this.video.pause();
+			}
+			else {
+				return Promise.resolve();
+			}
+		});
+	}
 
-	isPaused:function() {
-        return this._deferredAction(() => {
-            return this.video.paused;
-        });
-	},
+	isPaused() {
+		return this._deferredAction(() => {
+			return this.video.paused;
+		});
+	}
 
-	duration:function() {
-        return this._deferredAction(() => {
-            return this.video.duration;
-        });
-	},
+	duration() {
+		return this._deferredAction(() => {
+			return this.video.duration;
+		});
+	}
 
-	setCurrentTime:function(time) {
-        return this._deferredAction(() => {
-            this.video.currentTime = time;
-        });
-	},
+	setCurrentTime(time) {
+		return this._deferredAction(() => {
+			time && !isNaN(time) && (this.video.currentTime = time);
+		});
+	}
 
-	currentTime:function() {
-        return this._deferredAction(() => {
-            return this.video.currentTime;
-        });
-	},
+	currentTime() {
+		return this._deferredAction(() => {
+			return this.video.currentTime;
+		});
+	}
 
-	setVolume:function(volume) {
-        return this._deferredAction(() => {
-            this.video.volume = volume;
+	setVolume(volume) {
+		return this._deferredAction(() => {
+			this.video.volume = volume;
 			if (volume==0) {
 				this.video.setAttribute("muted","muted");
 				this.video.muted = true;
@@ -992,36 +1033,36 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 				this.video.removeAttribute("muted");
 				this.video.muted = false;
 			}
-        });
-	},
+		});
+	}
 
-	volume:function() {
+	volume() {
 		return this._deferredAction(() => {
-            return this.video.volume;
-        });
-	},
+			return this.video.volume;
+		});
+	}
 
-	setPlaybackRate:function(rate) {
+	setPlaybackRate(rate) {
 		return this._deferredAction(() => {
 			this._playbackRate = rate;
-            this.video.playbackRate = rate;
-        });
-	},
+			this.video.playbackRate = rate;
+		});
+	}
 
-	playbackRate: function() {
-        return this._deferredAction(() => {
-            return this.video.playbackRate;
-        });
-	},
+	playbackRate() {
+		return this._deferredAction(() => {
+			return this.video.playbackRate;
+		});
+	}
 
-	supportAutoplay:function() {
+	supportAutoplay() {
 		let macOS10_12_safari = paella.utils.userAgent.system.MacOS &&
 								paella.utils.userAgent.system.Version.minor>=12 &&
 								paella.utils.userAgent.browser.Safari;
 		let iOS = paella.utils.userAgent.system.iOS;
 		// Autoplay does not work from Chrome version 64
 		let chrome_v64 =	paella.utils.userAgent.browser.Chrome &&
-							paella.utils.userAgent.browser.Version.major>=64;
+							paella.utils.userAgent.browser.Version.major==64;
 		if (macOS10_12_safari || iOS || chrome_v64)
 		{
 			return false;
@@ -1029,9 +1070,9 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 		else {
 			return true;
 		}
-	},
+	}
 
-	goFullScreen:function() {
+	goFullScreen() {
 		return this._deferredAction(() => {
 			var elem = this.video;
 			if (elem.requestFullscreen) {
@@ -1047,19 +1088,18 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 				elem.webkitEnterFullscreen();
 			}
 		});
-	},
+	}
 
-
-	unFreeze:function(){
+	unFreeze(){
 		return this._deferredAction(() => {
 			var c = document.getElementById(this.video.id + "canvas");
 			if (c) {
 				$(c).remove();
 			}
 		});
-	},
+	}
 	
-	freeze:function(){
+	freeze(){
 		var This = this;
 		return this._deferredAction(function() {
 			var canvas = document.createElement("canvas");
@@ -1074,20 +1114,46 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 			ctx.drawImage(This.video, 0, 0, Math.ceil(canvas.width/16)*16, Math.ceil(canvas.height/16)*16);//Draw image
 			This.video.parentElement.appendChild(canvas);
 		});
-	},
+	}
 
-	unload:function() {
+	unload() {
 		this._callUnloadEvent();
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	getDimensions:function() {
+	getDimensions() {
 		return paella_DeferredNotImplemented();
 	}
-});
+}
 
-Class ("paella.videoFactories.Html5VideoFactory", {
-	isStreamCompatible:function(streamData) {
+paella.Html5Video = Html5Video;
+
+paella.Html5Video.IsAutoplaySupported = function(debug = false) {
+	return new Promise((resolve) => {
+		// Create video element to test autoplay
+		var video = document.createElement('video');
+		video.src = 'data:video/mp4;base64,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';
+		video.load();
+		//video.style.display = 'none';
+		if (debug) {
+			video.style = "position: fixed; top: 0px; right: 0px; z-index: 1000000;";
+			document.body.appendChild(video);
+		}
+		else {
+			video.style.display = 'none';
+		}
+		video.playing = false;
+		video.play().then((status) => {
+				resolve(true);
+			})
+			.catch((err) => {
+				resolve(false)
+			})
+	})
+}
+
+class Html5VideoFactory {
+	isStreamCompatible(streamData) {
 		try {
 			if (paella.videoFactories.Html5VideoFactory.s_instances>0 && 
 				base.userAgent.system.iOS &&
@@ -1102,54 +1168,45 @@ Class ("paella.videoFactories.Html5VideoFactory", {
 		}
 		catch (e) {}
 		return false;
-	},
+	}
 
-	getVideoObject:function(id, streamData, rect) {
+	getVideoObject(id, streamData, rect) {
 		++paella.videoFactories.Html5VideoFactory.s_instances;
 		return new paella.Html5Video(id, streamData, rect.x, rect.y, rect.w, rect.h);
 	}
-});
+}
+
+paella.videoFactories.Html5VideoFactory = Html5VideoFactory;
 paella.videoFactories.Html5VideoFactory.s_instances = 0;
 
 
-Class ("paella.ImageVideo", paella.VideoElementBase,{
-	_posterFrame:null,
-	_currentQuality:null,
-	_currentTime:0,
-	_duration: 0,
-	_ended:false,
-	_playTimer:null,
-	_playbackRate:1,
+class ImageVideo extends paella.VideoElementBase {
+	
+	constructor(id,stream,left,top,width,height) {
+		super(id,stream,'img',left,top,width,height);
 
-	_frameArray:null,
+		this._posterFrame = null;
+		this._currentQuality = null;
+		this._currentTime = 0;
+		this._duration =  0;
+		this._ended = false;
+		this._playTimer = null;
+		this._playbackRate = 1;
 
-
-	initialize:function(id,stream,left,top,width,height) {
-		this.parent(id,stream,'img',left,top,width,height);
-		var This = this;
-
+		this._frameArray = null;
+		
 		this._stream.sources.image.sort(function(a,b) {
 			return a.res.h - b.res.h;
 		});
+	}
 
-		Object.defineProperty(this, 'img', {
-			get:function() { return This.domElement; }
-		});
+	get img() { return this.domElement; }
 
-		Object.defineProperty(this, 'imgStream', {
-			get:function() {
-				return this._stream.sources.image[this._currentQuality];
-			}
-		});
+	get imgStream() { this._stream.sources.image[this._currentQuality]; }
 
-		Object.defineProperty(this, '_paused', {
-			get:function() {
-				return this._playTimer==null;
-			}
-		});
-	},
+	get _paused() { return this._playTimer==null; }
 
-	_deferredAction:function(action) {
+	_deferredAction(action) {
 		return new Promise((resolve) => {
 			if (this.ready) {
 				resolve(action());
@@ -1162,20 +1219,20 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 				$(this.video).bind('paella:imagevideoready', resolve);
 			}
 		});
-	},
+	}
 
-	_getQualityObject:function(index, s) {
+	_getQualityObject(index, s) {
 		return {
 			index: index,
 			res: s.res,
 			src: s.src,
-			toString:function() { return this.res.w + "x" + this.res.h; },
+			toString:function() { return Number(this.res.w) + "x" + Number(this.res.h); },
 			shortLabel:function() { return this.res.h + "p"; },
-			compare:function(q2) { return this.res.w*this.res.h - q2.res.w*q2.res.h; }
+			compare:function(q2) { return Number(this.res.w)*Number(this.res.h) - Number(q2.res.w)*Number(q2.res.h); }
 		};
-	},
+	}
 
-	_loadCurrentFrame:function() {
+	_loadCurrentFrame() {
 		var This = this;
 		if (this._frameArray) {
 			var frame = this._frameArray[0];
@@ -1189,46 +1246,46 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 			});
 			this.img.src = frame;
 		}
-	},
+	}
 
 	// Initialization functions
 
-	allowZoom:function() {
+	/*allowZoom:function() {
 		return false;
-	},
+	},*/
 
-	getVideoData:function() {
-		let This = this;
+	getVideoData() {
 		return new Promise((resolve) => {
-			this._deferredAction(function() {
+			this._deferredAction(() => {
+				let imgStream = this._stream.sources.image[this._currentQuality];
 				var videoData = {
-					duration: This._duration,
-					currentTime: This._currentTime,
+					duration: this._duration,
+					currentTime: this._currentTime,
 					volume: 0,
-					paused: This._paused,
-					ended: This._ended,
+					paused: this._paused,
+					ended: this._ended,
 					res: {
-						w: This.imgStream.res.w,
-						h: This.imgStream.res.h
+						w: imgStream.res.w,
+						h: imgStream.res.h
 					}
 				};
 				resolve(videoData);
 			});
 		});
-	},
+	}
 
-	setPosterFrame:function(url) {
+	setPosterFrame(url) {
 		this._posterFrame = url;
-	},
+	}
 
-	setAutoplay:function(auto) {
+	setAutoplay(auto) {
 		this._autoplay = auto;
 		if (auto && this.video) {
 			this.video.setAttribute("autoplay",auto);
 		}
-	},
+	}
 
-	load:function() {
+	load() {
 		var This = this;
 		var sources = this._stream.sources.image;
 		if (this._currentQuality===null && this._videoQualityStrategy) {
@@ -1257,13 +1314,13 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 		else {
 			return paella_DeferredRejected(new Error("Could not load video: invalid quality stream index"));
 		}
-	},
+	}
 
-	supportAutoplay:function() {
+	supportAutoplay() {
 		return true;
-	},
+	}
 
-	getQualities:function() {
+	getQualities() {
 		return new Promise((resolve) => {
 			setTimeout(() => {
 				var result = [];
@@ -1276,9 +1333,9 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 				resolve(result);
 			},10);
 		});
-	},
+	}
 
-	setQuality:function(index) {
+	setQuality(index) {
 		return new Promise((resolve) => {
 			let paused = this._paused;
 			let sources = this._stream.sources.image;
@@ -1290,15 +1347,15 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 					resolve();
 				});
 		});
-	},
+	}
 
-	getCurrentQuality:function() {
+	getCurrentQuality() {
 		return new Promise((resolve) => {
 			resolve(this._getQualityObject(this._currentQuality,this._stream.sources.image[this._currentQuality]));
 		});
-	},
+	}
 
-	play:function() {
+	play() {
 		let This = this;
 		return this._deferredAction(() => {
 			This._playTimer = new base.Timer(function() {
@@ -1307,67 +1364,67 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 			}, 250);
 			This._playTimer.repeat = true;
 		});
-	},
+	}
 
-	pause:function() {
+	pause() {
 		let This = this;
 		return this._deferredAction(() => {
 			This._playTimer.repeat = false;
 			This._playTimer = null;
 		});
-	},
+	}
 
-	isPaused:function() {
+	isPaused() {
 		return this._deferredAction(() => {
 			return this._paused;
 		});
-	},
+	}
 
-	duration:function() {
+	duration() {
 		return this._deferredAction(() => {
 			return this._duration;
 		});
-	},
+	}
 
-	setCurrentTime:function(time) {
+	setCurrentTime(time) {
 		return this._deferredAction(() => {
 			this._currentTime = time;
 			this._loadCurrentFrame();
 		});
-	},
+	}
 
-	currentTime:function() {
+	currentTime() {
 		return this._deferredAction(() => {
 			return this._currentTime;
 		});
-	},
+	}
 
-	setVolume:function(volume) {
+	setVolume(volume) {
 		return this._deferredAction(function() {
 			// No audo sources in image video
 		});
-	},
+	}
 
-	volume:function() {
+	volume() {
 		return this._deferredAction(function() {
 			// No audo sources in image video
 			return 0;
 		});
-	},
+	}
 
-	setPlaybackRate:function(rate) {
+	setPlaybackRate(rate) {
 		return this._deferredAction(() => {
 			this._playbackRate = rate;
 		});
-	},
+	}
 
-	playbackRate: function() {
+	playbackRate() {
 		return this._deferredAction(() => {
 			return this._playbackRate;
 		});
-	},
+	}
 
-	goFullScreen:function() {
+	goFullScreen() {
 		return this._deferredAction(() => {
 			var elem = this.img;
 			if (elem.requestFullscreen) {
@@ -1383,29 +1440,31 @@ Class ("paella.ImageVideo", paella.VideoElementBase,{
 				elem.webkitEnterFullscreen();
 			}
 		});
-	},
+	}
 
-	unFreeze:function(){
+	unFreeze(){
 		return this._deferredAction(function() {});
-	},
+	}
 
-	freeze:function(){
+	freeze(){
 		return this._deferredAction(function() {});
-	},
+	}
 
-	unload:function() {
+	unload() {
 		this._callUnloadEvent();
 		return paella_DeferredNotImplemented();
-	},
+	}
 
-	getDimensions:function() {
+	getDimensions() {
 		return paella_DeferredNotImplemented();
 	}
-});
+}
+
+paella.ImageVideo = ImageVideo;
 
 
-Class ("paella.videoFactories.ImageVideoFactory", {
-	isStreamCompatible:function(streamData) {
+class ImageVideoFactory {
+	isStreamCompatible(streamData) {
 		try {
 			for (var key in streamData.sources) {
 				if (key=='image') return true;
@@ -1413,9 +1472,13 @@ Class ("paella.videoFactories.ImageVideoFactory", {
 		}
 		catch (e) {}
 		return false;
-	},
+	}
 
-	getVideoObject:function(id, streamData, rect) {
+	getVideoObject(id, streamData, rect) {
 		return new paella.ImageVideo(id, streamData, rect.x, rect.y, rect.w, rect.h);
 	}
-});
+}
+
+paella.videoFactories.ImageVideoFactory = ImageVideoFactory;
+
+})();

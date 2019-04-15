@@ -62,7 +62,14 @@ paella.addPlugin(function() {
 					break;
 				case paella.events.timeUpdate:
 					if(self._active && self._hasImages) {
-						self.imageUpdate(event,params);
+						paella.player.videoContainer.trimming()
+							.then((trimmingData) => {
+								if (trimmingData.enabled) {
+									params.currentTime += trimmingData.start;
+								}
+								
+								self.imageUpdate(event,params);
+							})
 					}
 					break;
 			}
@@ -258,7 +265,7 @@ paella.addPlugin(function() {
 	
 			setTimeout(function(){ // TIMER FOR NICE VIEW
 				let overlayContainer = paella.player.videoContainer.overlayContainer;
-				overlayContainer.addElement(blackBoardDiv, overlayContainer.getMasterRect());
+				overlayContainer.addElement(blackBoardDiv, overlayContainer.getVideoRect(0));
 				overlayContainer.addElement(lensContainer, self._containerRect);
 			}, self._creationTimer);
 		}

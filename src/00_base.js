@@ -57,7 +57,6 @@ paella.events = {
 	loadComplete:'paella:loadComplete',
 	loadPlugins:'paella:loadPlugins',
 	error:'paella:error',
-	setProfile:'paella:setprofile',
 	documentChanged:'paella:documentChanged',
 	didSaveChanges:'paella:didsavechanges',
 	controlBarWillHide:'paella:controlbarwillhide',
@@ -69,9 +68,9 @@ paella.events = {
 	exitFullscreen:'paella:exitFullscreen',
 	resize:'paella:resize',		// params: { width:paellaPlayerContainer width, height:paellaPlayerContainer height }
 	videoZoomChanged:'paella:videoZoomChanged',
-	audioLanguageChanged:'paella:audiolanguagechanged',
+	audioTagChanged:'paella:audiotagchanged',
 	zoomAvailabilityChanged:'paella:zoomavailabilitychanged',
-
+	
 	qualityChanged:'paella:qualityChanged',
 	singleVideoReady:'paella:singleVideoReady',
 	singleVideoUnloaded:'paella:singleVideoUnloaded',
@@ -86,7 +85,11 @@ paella.events = {
 	captionsEnabled: 'paella:caption:enabled',  // Event triguered when a caption es enabled.
 	captionsDisabled: 'paella:caption:disabled',  // Event triguered when a caption es disabled.
 	
+	profileListChanged:'paella:profilelistchanged',
+	setProfile:'paella:setprofile',
 
+	seekAvailabilityChanged:'paella:seekAvailabilityChanged',
+	
 	trigger:function(event,params) {
 		$(document).trigger(event,params);
 	},

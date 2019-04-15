@@ -5,7 +5,10 @@ paella.addPlugin(function() {
 		getName() { return "es.upv.paella.arrowSlidesNavigatorPlugin"; }
 
 		checkEnabled(onSuccess) {
-			if (!paella.initDelegate.initParams.videoLoader.frameList || Object.keys(paella.initDelegate.initParams.videoLoader.frameList).length==0 && paella.player.videoContainer.isMonostream) {
+			if (!paella.initDelegate.initParams.videoLoader.frameList ||
+				Object.keys(paella.initDelegate.initParams.videoLoader.frameList).length==0 ||
+				paella.player.videoContainer.isMonostream)
+			{
 				onSuccess(false);
 			}
 			else {
@@ -44,11 +47,11 @@ paella.addPlugin(function() {
 				this.arrows.style.marginTop = "25%";
 				
 				let arrowNext = document.createElement('div');
-				arrowNext.className = "buttonPlugin arrowSlideNavidator nextButton right icon-arrow-right"
+				arrowNext.className = "buttonPlugin arrowSlideNavidator nextButton right icon-next2"
 				this.arrows.appendChild(arrowNext);
 		
 				let arrowPrev = document.createElement('div');
-				arrowPrev.className = "buttonPlugin arrowSlideNavidator prevButton left icon-arrow-left"
+				arrowPrev.className = "buttonPlugin arrowSlideNavidator prevButton left icon-previous2"
 				this.arrows.appendChild(arrowPrev);
 		
 		
@@ -65,28 +68,49 @@ paella.addPlugin(function() {
 			if (this.container) {
 				overlayContainer.removeElement(this.container);
 			}
-			switch (self._showArrowsIn) {
-				case 'full':
-					this.container = overlayContainer.addLayer();
-					this.container.style.marginRight = "0";
-					this.container.style.marginLeft = "0";			
-					this.arrows.style.marginTop = "25%";
-					break;
-				case 'master':
-					var element = document.createElement('div');
-					var rect = overlayContainer.getMasterRect();			
-					this.container = overlayContainer.addElement(element,rect);
-					this.visible = rect.visible;
-					this.arrows.style.marginTop = "23%";
-					break;
-				case 'slave':
-					var element = document.createElement('div');
-					var rect = overlayContainer.getSlaveRect();
-					this.container = overlayContainer.addElement(element,rect);
-					this.visible = rect.visible;
-					this.arrows.style.marginTop = "35%";
-					
-					break;
+
+			let rect = null;
+			let element = null;
+			
+			if (!paella.profiles.currentProfile) {
+				return null;
+			}
+
+			this.config.content = this.config.content || ["presentation"];
+			let profilesContent = [];
+			paella.profiles.currentProfile.videos.forEach((profileData) => {
+				profilesContent.push(profileData.content);
+			});
+
+			// Default content, if the "content" setting is not set in the configuration file
+			let selectedContent = profilesContent.length==1 ? profilesContent[0] : (profilesContent.length>1 ? profilesContent[1] : "");
+
+			this.config.content.some((preferredContent) => {
+				if (profilesContent.indexOf(preferredContent)!=-1) {
+					selectedContent = preferredContent;
+					return true;
+				}
+			})
+
+
+			if (!selectedContent) {
+				this.container = overlayContainer.addLayer();
+				this.container.style.marginRight = "0";
+				this.container.style.marginLeft = "0";			
+				this.arrows.style.marginTop = "25%";
+			}
+			else {
+				let videoIndex = 0;
+				paella.player.videoContainer.streamProvider.streams.forEach((stream,index) => {
+					if (stream.type=="video" && selectedContent==stream.content) {
+						videoIndex = index;
+					}
+				});
+				element = document.createElement('div');
+				rect = overlayContainer.getVideoRect(videoIndex);	// content
+				this.container = overlayContainer.addElement(element,rect);
+				this.visible = rect.visible;
+				this.arrows.style.marginTop = "33%";
 			}
 			
 			this.container.appendChild(this.arrows);
@@ -149,7 +173,11 @@ paella.addPlugin(function() {
 			let trimming;
 			this.getCurrentRange()
 				.then((range) => {
-					paella.player.videoContainer.seekToTime(range.next);
+					return paella.player.videoContainer.seekToTime(range.next);
+				})
+
+				.then(() => {
+					paella.player.videoContainer.play();
 				});
 		}
 	
@@ -158,7 +186,11 @@ paella.addPlugin(function() {
 			let trimming = null;
 			this.getCurrentRange()
 				.then((range) => {
-					paella.player.videoContainer.seekToTime(range.prev);
+					return paella.player.videoContainer.seekToTime(range.prev);
+				})
+				
+				.then(() => {
+					paella.player.videoContainer.play();
 				});
 		}
 		

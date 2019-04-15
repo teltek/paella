@@ -202,17 +202,24 @@ paella.addDataDelegate("cameraTrack",() => {
             getButtonType() { return paella.ButtonPlugin.type.popUpButton; }
 
             checkEnabled(onSuccess) {
-                paella.player.videoContainer.videoPlayers()
-                    .then((players) => {
-                        let pluginData = paella.player.config.plugins.list[this.getName()];
-                        let playerIndex = pluginData.targetStreamIndex;
-                        let autoByDefault = pluginData.autoModeByDefault;
-                        this.targetPlayer = players.length>playerIndex ? players[playerIndex] : null;
-                        g_track4kPlugin.enabled = autoByDefault;
-                        onSuccess(paella.player.config.player.videoZoom.enabled &&
-                                  this.targetPlayer &&
-                                  this.targetPlayer.allowZoom());
-                    });
+                let players = paella.player.videoContainer.streamProvider.videoPlayers;
+                let pluginData = paella.player.config.plugins.list[this.getName()];
+                let playerIndex = pluginData.targetStreamIndex;
+                let autoByDefault = pluginData.autoModeByDefault;
+                this.targetPlayer = players.length>playerIndex ? players[playerIndex] : null;
+                g_track4kPlugin.enabled = autoByDefault;
+                onSuccess(paella.player.config.player.videoZoom.enabled &&
+                            this.targetPlayer &&
+                            this.targetPlayer.allowZoom());
+            }
+
+            setup() {
+                if (this.config.autoModeByDefault) {
+                    this.zoomAuto()
+                }
+                else {
+                    this.resetZoom()
+                }
             }
 
             buildContent(domElement) {
@@ -235,7 +242,7 @@ paella.addDataDelegate("cameraTrack",() => {
                     let btn = document.createElement('div');
                     btn.className = `videoZoomToolbarItem ${ className }`;
                     if (content) {
-                        btn.innerHTML = content;
+                        btn.innerText = content;
                     }
                     else {
                         btn.innerHTML = `<i class="glyphicon glyphicon-${ className }"></i>`;
@@ -271,12 +278,12 @@ paella.addDataDelegate("cameraTrack",() => {
             resetZoom() {
               g_track4kPlugin.enabled = false;
               this.targetPlayer.setZoom(100,0,0,500);
-              g_track4kPlugin.updateTrackingStatus();
+              if (g_track4kPlugin.updateTrackingStatus) g_track4kPlugin.updateTrackingStatus();
             }
 
             zoomAuto() {
               g_track4kPlugin.enabled = ! g_track4kPlugin.enabled;
-              g_track4kPlugin.updateTrackingStatus();
+              if (g_track4kPlugin.updateTrackingStatus) g_track4kPlugin.updateTrackingStatus();
             }
         };
     });

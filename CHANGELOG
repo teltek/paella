@@ -1,6 +1,89 @@
 CHANGELOG
 =========
 
+* Paella 6.1.2
+
+  * Support for n-streams implemented in arrow slide navigation plugin (Fix #406)
+
+* Paella 6.1.1
+
+  * Bug fixed in volume range plugin
+
+* Paella 6.1.0
+
+  * All the core classes migrated to ECMAScript 2015.
+  * Improvements in HLS plugin configuration.
+  * Improvements in accesibility.
+  * Improvements in usability: fold-out button plugin (see volume button plugin).
+  * Support for audio + images streams.
+  * Add support for video Picture-in-Picture in Chrome (#389)
+  * Add basque localization
+  * Add galician localization
+  * Breaking changes:
+    - The index.html file now includes paella_player_es2015.js. If you plan to support
+      Internet Explorer, you will need to modify the index.html file to add the legacy scripts.
+    - The button plugins now must implement the method getAriaLabel() to be included in the
+      tabindex. if you have a plugin that is relevant for screen readers, you must implement
+      this function in your plugin.
+
+* Paella 6.0.8
+
+  * Bug fixed in live streams videos
+
+* Paella 6.0.7
+
+  * Bug fixed when no "standalone" property exists in config.json
+
+* Paella 6.0.6
+
+  * Bug fixed setting video profile
+
+* Paella 6.0.5
+
+  * Improved video stability on slow networks.
+  * Bug fixed on first video layout load.
+
+* Paella 6.0.4
+
+  * Fix issues in stream video profiles
+
+* Paella 6.0.3
+  
+  * Fix issues in errorContainer size
+  * Fixed bug in the zoom plugin visibility, when the control bar is hidden.
+  * Bug fixed in video factory selection method
+  
+* Paella 6.0.2
+  
+  * Fix some XSS security issues
+
+* Paella 6.0.1
+
+  * Better customization of video profile plugins
+  * Bug fixes
+
+* Paella 6.0.0
+
+  * Multiple video stream support
+  * Video profile plugins
+  * Dynamic video profiles
+  * Bug fixed in Elasticsearch plugin
+  * Full support for full screen on iPad, with iOS 12
+  * Breaking changes: Check the following link to update your data.json files
+    to support the new multistream capabilities:
+    https://github.com/polimediaupv/paella/blob/develop/doc/adopter_doc/integrate_datajson.md
+
+    
+
+* Paella 5.3.10
+
+  * Change width of PlaybackBar on resize (fixes #339)
+  * Return play and pause promise (fixes #341)
+  * Fix search when video is trimmed (fixes #351)
+  * Fix seek to incorrect caption and duplicated captions (fixes #353 and #354)
+  * Fix loop when seek throught a break in Safari for iOS (fixes #356)
+  * HLS plugin: handle nonfatal media errors
+
 * Paella 5.3.9
 
   * Bug fixed in elasticsearch plugin
@@ -55,6 +138,34 @@ CHANGELOG
   * Use 16/9 aspect ratio for audio sources
   * New plugin: Usertracking xAPI plugin (@dpeite)
   * New plugin: Usertracking Piwik plugin
+
+* Paella 5.2.19
+
+  * Bug fixed in blackboard high resolution photo plugin
+  * Bug fixed in HTML 5 video element when the buffer is empty
+
+* Paella 5.2.18
+
+  * Full screen support on iPad iOS 12
+  * Fix some XSS security issues
+  * Update NPM dependencies
+
+* Paella 5.2.17
+
+  * Bug fixed in elasticsearch plugin
+
+* Paella 5.2.16
+
+  * Improvements on HLS plugin
+  * Bug fixed in footprints plugin
+
+* Paella 5.2.15
+
+  * Legal info plugin improvements
+
+* Paella 5.2.14
+
+  * Legal info plugin added
 
 * Paella 5.2.13
 
@@ -167,7 +278,7 @@ CHANGELOG
 
   * Fixed bug setting attributes to video tag (iOS bug only)
   * Fixed bug in footprints plugin duration returns promise)
-  * Fixed some bugs in javascript "strict mode" (thanks to @ppetit)
+  * Fixed some bugs in javascript "strict mode" (thanks to @ppettit)
 
 * Paella 5.1.5
 

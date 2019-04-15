@@ -9,7 +9,6 @@ const	gulp = require('gulp'),
 		fs = require('fs'),
 		minify = require('gulp-minify'),
 		uglify = require('gulp-uglify-es').default,
-		flatten = require('gulp-flatten'),
 		path = require('path'),
 
 		exec = require('child_process').execSync,
@@ -121,15 +120,15 @@ gulp.task("compileDebugES2015", function() {
 		.pipe(gulp.dest(`${config.outDir}player/javascript/`));
 });
 
-gulp.task("compile",["compileES5","compileES2015"]);
-gulp.task("compileDebug",["compileDebugES5","compileDebugES2015"]);
+gulp.task("compile", gulp.series("compileES5","compileES2015"));
+gulp.task("compileDebug", gulp.series("compileDebugES5","compileDebugES2015"));
 
 gulp.task("styles", function() {
 	let p = [];
 	function genSkin(skinPath) {
 		var stat = fs.statSync(skinPath);
 		if (stat.isDirectory()) {
-			
+
 		}
 		fs.readdirSync(skinPath)
 			.forEach(function(pathItem) {
@@ -201,8 +200,8 @@ gulp.task("copy", function() {
 
 
 
- 
-gulp.task("dictionary", function(cb) {	
+
+gulp.task("dictionary", function(cb) {
 	let p = [];
 	let langs = [];
 	glob.sync([
@@ -210,7 +209,7 @@ gulp.task("dictionary", function(cb) {
 	]).forEach((l) => {
 		let re = RegExp(".*_([a-z]+)(\-[a-zA-Z]+)?\.json");
 		let result = re.exec(l);
-		if (result && !langs.includes(result[1])) {	
+		if (result && !langs.includes(result[1])) {
 			langs.push(result[1]);
 		}
 	});
@@ -220,9 +219,10 @@ gulp.task("dictionary", function(cb) {
 			`localization/**${lang}**.json`,
 			`plugins/**/localization/${lang}**.json`
 			])
-			.pipe(merge(`paella_${lang}.json`))
-			.pipe(gulp.dest(`${config.outDir}player/localization`)));		
+			.pipe(merge({fileName:`paella_${lang}.json`}))
+			.pipe(gulp.dest(`${config.outDir}player/localization`)));
 	});
+
 	return Promise.all(p);
 });
 
@@ -232,31 +232,31 @@ gulp.task("setupBower", function() {
 });
 
 
-gulp.task("build", ["compile","styles","dictionary","copy"]);
-gulp.task("buildDebug", ["compileDebug","styles","dictionary","copy"]);
-gulp.task("buildBower", ["setupBower","build"]);
+gulp.task("build", gulp.series("compile","styles","dictionary","copy"));
+gulp.task("buildDebug", gulp.series("compileDebug","styles","dictionary","copy"));
+gulp.task("buildBower", gulp.series("setupBower","build"));
 
-gulp.task("watch", function() {
-	return gulp.watch([
+function watchFiles() {
+	gulp.watch([
 		'index.html',
 		'config/**',
 		'plugins/**',
 		'vendor/plugins/**',
 		'src/*.js'
-	],["build"]);
-});
+	],gulp.series("build"));
+}
 
-gulp.task("watchDebug", function() {
-	return gulp.watch([
-		'index.html',
-		'resources/**',
-		'repository_test/**',
-		'config/**',
-		'plugins/**',
-		'vendor/plugins/**',
-		'src/*.js'
-	],["buildDebug"]);
-});
+function watchFilesDebug() {
+	gulp.watch([
+		'./index.html',
+		'./resources/**',
+		'./repository_test/**',
+		'./config/**',
+		'./plugins/**',
+		'./vendor/plugins/**',
+		'./src/*.js'
+	],gulp.series('buildDebug'));
+}
 
 gulp.task("tools", function() {
 	let p = [
@@ -269,13 +269,13 @@ gulp.task("tools", function() {
 	return Promise.all(p);
 });
 
-gulp.task("default",["build"]);
-gulp.task("serve",["buildDebug","webserver","tools","watchDebug"]);
+gulp.task("default", gulp.series("build"));
+gulp.task("serve", gulp.parallel("buildDebug","webserver","tools",watchFilesDebug));
 
 // Compatibility
-gulp.task("server.release",["build","webserver","tools","watch"]);
-gulp.task("server.debug",["buildDebug","webserver","tools","watchDebug"]);
-gulp.task("build.debug",["buildDebug"]);
-gulp.task("build.release",["build"]);
+gulp.task("server.release", gulp.parallel("build","webserver","tools",watchFiles));
+gulp.task("server.debug", gulp.parallel("buildDebug","webserver","tools",watchFilesDebug));
+gulp.task("build.debug", gulp.series("buildDebug"));
+gulp.task("build.release", gulp.series("build"));
 
-gulp.task("build.bower",["buildBower"]);
+gulp.task("build.bower", gulp.series("buildBower"));

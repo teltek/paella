@@ -17,58 +17,62 @@
 
 // Paella Mouse Manager
 ///////////////////////////////////////////////////////
-Class ("paella.MouseManager", {
-	targetObject:null,
+(() => {
+	class MouseManager {	
+		get targetObject() { return this._targetObject; }
+		set targetObject(t) { this._targetObject = t; }
 
-	initialize:function() {
-		var thisClass = this;
-		paella.events.bind('mouseup',function(event) { thisClass.up(event); });
-		paella.events.bind('mousemove',function(event) { thisClass.move(event); });
-		paella.events.bind('mouseover',function(event) { thisClass.over(event); });
-	},
-
-	down:function(targetObject,event) {
-		this.targetObject = targetObject;
-		if (this.targetObject && this.targetObject.down) {
-			this.targetObject.down(event,event.pageX,event.pageY);
-			event.cancelBubble = true;
+		constructor() {
+			paella.events.bind('mouseup',(event) => this.up(event));
+			paella.events.bind('mousemove',(event) => this.move(event));
+			paella.events.bind('mouseover',(event) =>  this.over(event));
 		}
-		return false;
-	},
-
-	up:function(event) {
-		if (this.targetObject && this.targetObject.up) {
-			this.targetObject.up(event,event.pageX,event.pageY);
-			event.cancelBubble = true;
+	
+		down(targetObject,event) {
+			this.targetObject = targetObject;
+			if (this.targetObject && this.targetObject.down) {
+				this.targetObject.down(event,event.pageX,event.pageY);
+				event.cancelBubble = true;
+			}
+			return false;
 		}
-		this.targetObject = null;
-		return false;
-	},
-
-	out:function(event) {
-		if (this.targetObject && this.targetObject.out) {
-			this.targetObject.out(event,event.pageX,event.pageY);
-			event.cancelBubble = true;
+	
+		up(event) {
+			if (this.targetObject && this.targetObject.up) {
+				this.targetObject.up(event,event.pageX,event.pageY);
+				event.cancelBubble = true;
+			}
+			this.targetObject = null;
+			return false;
 		}
-		return false;
-	},
-
-	move:function(event) {
-		if (this.targetObject && this.targetObject.move) {
-			this.targetObject.move(event,event.pageX,event.pageY);
-			event.cancelBubble = true;
+	
+		out(event) {
+			if (this.targetObject && this.targetObject.out) {
+				this.targetObject.out(event,event.pageX,event.pageY);
+				event.cancelBubble = true;
+			}
+			return false;
 		}
-		return false;
-	},
-
-	over:function(event) {
-		if (this.targetObject && this.targetObject.over) {
-			this.targetObject.over(event,event.pageX,event.pageY);
-			event.cancelBubble = true;
+	
+		move(event) {
+			if (this.targetObject && this.targetObject.move) {
+				this.targetObject.move(event,event.pageX,event.pageY);
+				event.cancelBubble = true;
+			}
+			return false;
 		}
-		return false;
+	
+		over(event) {
+			if (this.targetObject && this.targetObject.over) {
+				this.targetObject.over(event,event.pageX,event.pageY);
+				event.cancelBubble = true;
+			}
+			return false;
+		}
 	}
-});
+
+	paella.MouseManager = MouseManager;
+})();
 
 
 // paella.utils
@@ -245,42 +249,51 @@ paella.utils = {
 
 			return d;
 		}
-	}	
-};
-
-
-
-
-Class ("paella.DataDelegate", {
-	// onSuccess => function(response,readStatus)
-	read:function(context,params,onSuccess) {
-		// TODO: read key with context
-		if (typeof(onSuccess)=='function') {
-			onSuccess({},true);
-		}
 	},
 
-	// onSuccess => function(response,writeStatus)
-	write:function(context,params,value,onSuccess) {
-		// TODO: write key with context
-		if(typeof(onSuccess)=='function') {
-			onSuccess({},true);
-		}
-	},
-
-	remove:function(context,params,onSuccess) {
-		// TODO: write key with context
-		if(typeof(onSuccess)=='function') {
-			onSuccess({},true);
-		}
+	objectFromString: function(str) {
+	  var arr = str.split(".");
+	
+	  var fn = (window || this);
+	  for (var i = 0, len = arr.length; i < len; i++) {
+		fn = fn[arr[i]];
+	  }
+	
+	  if (typeof fn !== "function") {
+		throw new Error("constructor not found");
+	  }
+	
+	  return fn;
 	}
-});
-
-paella.dataDelegates = {};
+};
 
 (function() {
 	let g_delegateCallbacks = {};
 	let g_dataDelegates = [];
+
+	class DataDelegate {
+		read(context,params,onSuccess) {
+			if (typeof(onSuccess)=='function') {
+				onSuccess({},true);
+			}
+		}
+
+		write(context,params,value,onSuccess) {
+			if (typeof(onSuccess)=='function') {
+				onSuccess({},true);
+			}
+		}
+
+		remove(context,params,onSuccess) {
+			if (typeof(onSuccess)=='function') {
+				onSuccess({},true);
+			}
+		}
+	}
+
+	paella.DataDelegate = DataDelegate;
+
+	paella.dataDelegates = {};
 
 	class Data {
 		get enabled() { return this._enabled; }
@@ -375,7 +388,9 @@ paella.dataDelegates = {};
 paella.addDataDelegate(["default","trimming"], () => {
 	paella.dataDelegates.DefaultDataDelegate = class CookieDataDelegate extends paella.DataDelegate {
 		serializeKey(context,params) {
-			if (typeof(params)=='object') params = JSON.stringify(params);
+			if (typeof(params)=='object') {
+				params = JSON.stringify(params);
+			}
 			return context + '|' + params;
 		}
 	
@@ -394,7 +409,9 @@ paella.addDataDelegate(["default","trimming"], () => {
 	
 		write(context,params,value,onSuccess) {
 			var key = this.serializeKey(context,params);
-			if (typeof(value)=='object') value = JSON.stringify(value);
+			if (typeof(value)=='object') {
+				value = JSON.stringify(value);
+			}
 			value = escape(value);
 			base.cookies.set(key,value);
 			if(typeof(onSuccess)=='function') {
@@ -404,7 +421,9 @@ paella.addDataDelegate(["default","trimming"], () => {
 	
 		remove(context,params,onSuccess) {
 			var key = this.serializeKey(context,params);
-			if (typeof(value)=='object') value = JSON.stringify(value);
+			if (typeof(value)=='object') {
+				value = JSON.stringify(value);
+			}
 			base.cookies.set(key,'');
 			if(typeof(onSuccess)=='function') {
 				onSuccess({},true);
@@ -418,289 +437,262 @@ paella.addDataDelegate(["default","trimming"], () => {
 // Will be initialized inmediately after loading config.json, in PaellaPlayer.onLoadConfig()
 paella.data = null;
 
-// Include scripts in header
-let g_requiredScripts = {};
-paella.require = function(path) {
-	if (!g_requiredScripts[path]) {
-		g_requiredScripts[path] = new Promise((resolve,reject) => {
-			let script = document.createElement("script");
-			if (path.split(".").pop()=='js') {
-				script.src = path;
-				script.async = false;
-				document.head.appendChild(script);
-				setTimeout(() => resolve(), 100);
-			}
-			else {
-				reject(new Error("Unexpected file type"));
-			}
-		});
-	}
-	return g_requiredScripts[path];
-}
 
-
-Class ("paella.MessageBox", {
-	modalContainerClassName:'modalMessageContainer',
-	frameClassName:'frameContainer',
-	messageClassName:'messageContainer',
-	errorClassName:'errorContainer',
-	currentMessageBox:null,
-	messageContainer:null,
-	onClose:null,
-
-	initialize:function() {
-		var thisClass = this;
-		$(window).resize(function(event) { thisClass.adjustTop(); });
-	},
-
-	showFrame:function(src,params) {
-		var closeButton = true;
-		var width = "80%";
-		var height = "80%";
-		var onClose = null;
-		if (params) {
-			closeButton = params.closeButton;
-			width = params.width;
-			height = params.height;
-			onClose = params.onClose;
-		}
-
-		this.doShowFrame(src,closeButton,width,height,onClose);
-	},
-
-	doShowFrame:function(src,closeButton,width,height,onClose) {
-		this.onClose = onClose;
-		$('#playerContainer').addClass("modalVisible");
-
-		if (this.currentMessageBox) {
-			this.close();
-		}
-
-		if (!width) { width = '80%'; }
-
-		if (!height) { height = '80%'; }
-
-		var modalContainer = document.createElement('div');
-		modalContainer.className = this.modalContainerClassName;
-		modalContainer.style.position = 'fixed';
-		modalContainer.style.top = '0px';
-		modalContainer.style.left = '0px';
-		modalContainer.style.right = '0px';
-		modalContainer.style.bottom = '0px';
-		modalContainer.style.zIndex = 999999;
-
-		var messageContainer = document.createElement('div');
-		messageContainer.className = this.frameClassName;
-		messageContainer.style.width = width;
-		messageContainer.style.height = height;
-		messageContainer.style.position = 'relative';
-		modalContainer.appendChild(messageContainer);
-
-		var iframeContainer = document.createElement('iframe');
-		iframeContainer.src = src;
-		iframeContainer.setAttribute("frameborder", "0");
-		iframeContainer.style.width = "100%";
-		iframeContainer.style.height = "100%";
-		messageContainer.appendChild(iframeContainer);
-
-		if (paella.player && paella.player.isFullScreen()) {
-			paella.player.mainContainer.appendChild(modalContainer);
-		}else{
-			$('body')[0].appendChild(modalContainer);
-		}
-
-		this.currentMessageBox = modalContainer;
-		this.messageContainer = messageContainer;
-		var thisClass = this;
-		this.adjustTop();
-
-		if (closeButton) {
-			this.createCloseButton();
-		}
-	},
-
-	showElement:function(domElement,params) {
-		var closeButton = true;
-		var width = "60%";
-		var height = "40%";
-		var onClose = null;
-		var className = this.messageClassName;
-		if (params) {
-			className = params.className;
-			closeButton = params.closeButton;
-			width = params.width;
-			height = params.height;
-			onClose = params.onClose;
-		}
-
-		this.doShowElement(domElement,closeButton,width,height,className,onClose);
-	},
-
-	showMessage:function(message,params) {
-		var closeButton = true;
-		var width = "60%";
-		var height = "40%";
-		var onClose = null;
-		var className = this.messageClassName;
-		if (params) {
-			className = params.className;
-			closeButton = params.closeButton;
-			width = params.width;
-			height = params.height;
-			onClose = params.onClose;
-		}
-
-		this.doShowMessage(message,closeButton,width,height,className,onClose);
-	},
-
-	doShowElement:function(domElement,closeButton,width,height,className,onClose) {
-		this.onClose = onClose;
-		$('#playerContainer').addClass("modalVisible");
-
-		if (this.currentMessageBox) {
-			this.close();
-		}
-		if (!className) className = this.messageClassName;
-
-		if (!width) { width = '80%'; }
-
-		if (!height) { height = '30%'; }
-
-		var modalContainer = document.createElement('div');
-		modalContainer.className = this.modalContainerClassName;
-		modalContainer.style.position = 'fixed';
-		modalContainer.style.top = '0px';
-		modalContainer.style.left = '0px';
-		modalContainer.style.right = '0px';
-		modalContainer.style.bottom = '0px';
-		modalContainer.style.zIndex = 999999;
-
-		var messageContainer = document.createElement('div');
-		messageContainer.className = className;
-		messageContainer.style.width = width;
-		messageContainer.style.height = height;
-		messageContainer.style.position = 'relative';
-		messageContainer.appendChild(domElement);
-		modalContainer.appendChild(messageContainer);
-
-		$('body')[0].appendChild(modalContainer);
-
-		this.currentMessageBox = modalContainer;
-		this.messageContainer = messageContainer;
-		var thisClass = this;
-		this.adjustTop();
-
-		if (closeButton) {
-			this.createCloseButton();
-		}
-	},
-
-	doShowMessage:function(message,closeButton,width,height,className,onClose) {
-		this.onClose = onClose;
-		$('#playerContainer').addClass("modalVisible");
-
-		if (this.currentMessageBox) {
-			this.close();
-		}
-		if (!className) className = this.messageClassName;
-
-		if (!width) { width = '80%'; }
-
-		if (!height) { height = '30%'; }
-
-		var modalContainer = document.createElement('div');
-		modalContainer.className = this.modalContainerClassName;
-		modalContainer.style.position = 'fixed';
-		modalContainer.style.top = '0px';
-		modalContainer.style.left = '0px';
-		modalContainer.style.right = '0px';
-		modalContainer.style.bottom = '0px';
-		modalContainer.style.zIndex = 999999;
-
-		var messageContainer = document.createElement('div');
-		messageContainer.className = className;
-		messageContainer.style.width = width;
-		messageContainer.style.height = height;
-		messageContainer.style.position = 'relative';
-		messageContainer.innerHTML = message;
-		modalContainer.appendChild(messageContainer);
-
-		if (paella.player && paella.player.isFullScreen()) {
-			paella.player.mainContainer.appendChild(modalContainer);
-		}else{
-			$('body')[0].appendChild(modalContainer);
-		}
-
-		this.currentMessageBox = modalContainer;
-		this.messageContainer = messageContainer;
-		var thisClass = this;
-		this.adjustTop();
-
-		if (closeButton) {
-			this.createCloseButton();
-		}
-	},
-
-	showError:function(message,params) {
-		var closeButton = false;
-		var width = "60%";
-		var height = "20%";
-		var onClose = null;
-		if (params) {
-			closeButton = params.closeButton;
-			width = params.width;
-			height = params.height;
-			onClose = params.onClose;
-		}
-
-		this.doShowError(message,closeButton,width,height,onClose);
-	},
-
-	doShowError:function(message,closeButton,width,height,onClose) {
-		this.doShowMessage(message,closeButton,width,height,this.errorClassName,onClose);
-	},
-
-	createCloseButton:function() {
-		if (this.messageContainer) {
-			var thisClass = this;
-			var closeButton = document.createElement('span');
-			this.messageContainer.appendChild(closeButton);
-			closeButton.className = 'paella_messageContainer_closeButton icon-cancel-circle';
-			$(closeButton).click(function(event) { thisClass.onCloseButtonClick(); });
-		}
-	},
-
-	adjustTop:function() {
-		if (this.currentMessageBox) {
-
-			var msgHeight = $(this.messageContainer).outerHeight();
-			var containerHeight = $(this.currentMessageBox).height();
-
-			var top = containerHeight/2 - msgHeight/2;
-			this.messageContainer.style.marginTop = top + 'px';
-		}
-	},
+(() => {
+	// Include scripts in header
+	let g_requiredScripts = {};
 	
-	close:function() {
-		if (this.currentMessageBox && this.currentMessageBox.parentNode) {
-			var msgBox = this.currentMessageBox;
-			var parent = msgBox.parentNode;
-			$('#playerContainer').removeClass("modalVisible");
-			$(msgBox).animate({opacity:0.0},300,function() {
-				parent.removeChild(msgBox);
+	paella.require = function(path) {
+		if (!g_requiredScripts[path]) {
+			g_requiredScripts[path] = new Promise((resolve,reject) => {
+				let script = document.createElement("script");
+				if (path.split(".").pop()=='js') {
+					script.src = path;
+					script.async = false;
+					document.head.appendChild(script);
+					setTimeout(() => resolve(), 100);
+				}
+				else {
+					reject(new Error("Unexpected file type"));
+				}
 			});
-			if (this.onClose) {
-				this.onClose();
+		}
+		return g_requiredScripts[path];
+	};
+
+	class MessageBox {
+		get modalContainerClassName() { return 'modalMessageContainer'; } 
+		get frameClassName() { return 'frameContainer'; }
+		get messageClassName() { return 'messageContainer'; }
+		get errorClassName() { return 'errorContainer'; }
+		
+		get currentMessageBox() { return this._currentMessageBox; }
+		set currentMessageBox(m) { this._currentMessageBox = m; } 
+		get messageContainer() { return this._messageContainer; }
+		get onClose() { return this._onClose; }
+		set onClose(c) { this._onClose = c; }
+	
+		constructor() {
+			this._messageContainer = null;
+			$(window).resize((event) => this.adjustTop());
+		}
+
+		showFrame(src,params) {
+			var closeButton = true;
+			var onClose = null;
+			if (params) {
+				closeButton = params.closeButton;
+				onClose = params.onClose;
+			}
+	
+			this.doShowFrame(src,closeButton,onClose);
+		}
+	
+		doShowFrame(src,closeButton,onClose) {
+			this.onClose = onClose;
+			$('#playerContainer').addClass("modalVisible");
+	
+			if (this.currentMessageBox) {
+				this.close();
+			}
+	
+			var modalContainer = document.createElement('div');
+			modalContainer.className = this.modalContainerClassName;
+			modalContainer.style.position = 'fixed';
+			modalContainer.style.top = '0px';
+			modalContainer.style.left = '0px';
+			modalContainer.style.right = '0px';
+			modalContainer.style.bottom = '0px';
+			modalContainer.style.zIndex = 999999;
+
+			var messageContainer = document.createElement('div');
+			messageContainer.className = this.frameClassName;
+			modalContainer.appendChild(messageContainer);
+	
+			var iframeContainer = document.createElement('iframe');
+			iframeContainer.src = src;
+			iframeContainer.setAttribute("frameborder", "0");
+			iframeContainer.style.width = "100%";
+			iframeContainer.style.height = "100%";
+			messageContainer.appendChild(iframeContainer);
+	
+			if (paella.player && paella.player.isFullScreen()) {
+				paella.player.mainContainer.appendChild(modalContainer);
+			}else{
+				$('body')[0].appendChild(modalContainer);
+			}
+	
+			this.currentMessageBox = modalContainer;
+			this._messageContainer = messageContainer;
+			this.adjustTop();
+	
+			if (closeButton) {
+				this.createCloseButton();
 			}
 		}
-	},
+	
+		showElement(domElement,params) {
+			var closeButton = true;
+			var onClose = null;
+			var className = this.messageClassName;
+			if (params) {
+				className = params.className;
+				closeButton = params.closeButton;
+				onClose = params.onClose;
+			}
+	
+			this.doShowElement(domElement,closeButton,className,onClose);
+		}
+	
+		showMessage(message,params) {
+			var closeButton = true;
+			var onClose = null;
+			var className = this.messageClassName;
+			if (params) {
+				className = params.className;
+				closeButton = params.closeButton;
+				onClose = params.onClose;
+			}
+	
+			this.doShowMessage(message,closeButton,className,onClose);
+		}
+	
+		doShowElement(domElement,closeButton,className,onClose) {
+			this.onClose = onClose;
+			$('#playerContainer').addClass("modalVisible");
+	
+			if (this.currentMessageBox) {
+				this.close();
+			}
+			if (!className) className = this.messageClassName;
+	
+			var modalContainer = document.createElement('div');
+			modalContainer.className = this.modalContainerClassName;
+			modalContainer.style.position = 'fixed';
+			modalContainer.style.top = '0px';
+			modalContainer.style.left = '0px';
+			modalContainer.style.right = '0px';
+			modalContainer.style.bottom = '0px';
+			modalContainer.style.zIndex = 999999;
+	
+			var messageContainer = document.createElement('div');
+			messageContainer.className = className;
+			messageContainer.appendChild(domElement);
+			modalContainer.appendChild(messageContainer);
+	
+			$('body')[0].appendChild(modalContainer);
+	
+			this.currentMessageBox = modalContainer;
+			this._messageContainer = messageContainer;
+			this.adjustTop();
+	
+			if (closeButton) {
+				this.createCloseButton();
+			}
+		}
+	
+		doShowMessage(message,closeButton,className,onClose) {
+			this.onClose = onClose;
+			$('#playerContainer').addClass("modalVisible");
+	
+			if (this.currentMessageBox) {
+				this.close();
+			}
+			if (!className) className = this.messageClassName;
+	
+			var modalContainer = document.createElement('div');
+			modalContainer.className = this.modalContainerClassName;
+			modalContainer.style.position = 'fixed';
+			modalContainer.style.top = '0px';
+			modalContainer.style.left = '0px';
+			modalContainer.style.right = '0px';
+			modalContainer.style.bottom = '0px';
+			modalContainer.style.zIndex = 999999;
+	
+			var messageContainer = document.createElement('div');
+			messageContainer.className = className;
+			messageContainer.innerHTML = message;
+			modalContainer.appendChild(messageContainer);
+	
+			if (paella.player && paella.player.isFullScreen()) {
+				paella.player.mainContainer.appendChild(modalContainer);
+			}else{
+				$('body')[0].appendChild(modalContainer);
+			}
+	
+			this.currentMessageBox = modalContainer;
+			this._messageContainer = messageContainer;
+			this.adjustTop();
+	
+			if (closeButton) {
+				this.createCloseButton();
+			}
+		}
 
-	onCloseButtonClick:function() {
-		this.close();
+		showError(message,params) {
+			var closeButton = false;
+			var onClose = null;
+			if (params) {
+				closeButton = params.closeButton;
+				onClose = params.onClose;
+			}
+	
+			this.doShowError(message,closeButton,onClose);
+		}
+	
+		doShowError(message,closeButton,onClose) {
+			this.doShowMessage(message,closeButton,this.errorClassName,onClose);
+		}
+	
+		createCloseButton() {
+			if (this._messageContainer) {
+				var closeButton = document.createElement('span');
+				this._messageContainer.appendChild(closeButton);
+				closeButton.className = 'paella_messageContainer_closeButton icon-cancel-circle';
+				$(closeButton).click((event) => this.onCloseButtonClick());
+				$(window).keyup((evt) => {
+					if (evt.keyCode == 27) {
+						this.onCloseButtonClick();
+					}
+				});
+		
+			}
+		}
+		
+		adjustTop() {
+			if (this.currentMessageBox) {
+	
+				var msgHeight = $(this._messageContainer).outerHeight();
+				var containerHeight = $(this.currentMessageBox).height();
+	
+				var top = containerHeight/2 - msgHeight/2;
+				this._messageContainer.style.marginTop = top + 'px';
+			}
+		}
+		
+		close() {
+			if (this.currentMessageBox && this.currentMessageBox.parentNode) {
+				var msgBox = this.currentMessageBox;
+				var parent = msgBox.parentNode;
+				$('#playerContainer').removeClass("modalVisible");
+				$(msgBox).animate({opacity:0.0},300,function() {
+					parent.removeChild(msgBox);
+				});
+				if (this.onClose) {
+					this.onClose();
+				}
+			}
+		}
+	
+		onCloseButtonClick() {
+			this.close();
+		}
 	}
-});
+	
+	paella.MessageBox = MessageBox;
+	paella.messageBox = new paella.MessageBox();
 
-paella.messageBox = new paella.MessageBox();
+})();
 
 paella.AntiXSS = {
 	htmlEscape: function (str) {
@@ -721,3 +713,19 @@ paella.AntiXSS = {
 			.replace(/&amp;/g, '&');
 	}
 };
+
+function paella_DeferredResolved(param) {
+	return new Promise((resolve) => {
+		resolve(param);
+	});
+}
+
+function paella_DeferredRejected(param) {
+	return new Promise((resolve,reject) => {
+		reject(param);
+	});
+}
+
+function paella_DeferredNotImplemented () {
+	return paella_DeferredRejected(new Error("not implemented"));
+}

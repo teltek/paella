@@ -14,13 +14,15 @@
 	permissions and limitations under the License.
 */
 
+(() => {
 
 // Default Video Loader
 //
-Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
-	_url:null,
+class DefaultVideoLoader extends paella.VideoLoader {
 	
-	initialize: function (data) {
+	constructor(data) {
+		super(data);
+		this._url = null;
 		if (typeof(data)=="object") {
 			this._data = data;
 		}
@@ -32,20 +34,21 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 				this._url = data;
 			}
 		}
-	},
+	}
 
-	getVideoUrl:function() {
+	getVideoUrl() {
 		if (paella.initDelegate.initParams.videoUrl) {
 			return typeof(paella.initDelegate.initParams.videoUrl)=="function" ?
 				paella.initDelegate.initParams.videoUrl() :
 				paella.initDelegate.initParams.videoUrl;
 		}
 		else {
-			return (/\/$/.test(this._url) ? this._url:this._url + '/') + paella.initDelegate.getId() + '/';
+			let url = this._url || (paella.player.config.standalone && paella.player.config.standalone.repository) || '';
+			return (/\/$/.test(url) ? url:url + '/') + paella.initDelegate.getId() + '/';
 		}
-	},
+	}
 
-	getDataUrl:function() {
+	getDataUrl() {
 		if (paella.initDelegate.initParams.dataUrl) {
 			return typeof(paella.initDelegate.initParams.dataUrl)=='function' ?
 				paella.initDelegate.initParams.dataUrl() :
@@ -54,11 +57,11 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 		else {
 			return this.getVideoUrl() + 'data.json';
 		}
-	},
+	}
 
-
-	loadVideo: function (onSuccess) {
+	loadVideo(onSuccess) {
 		let loadVideoDelegate = paella.initDelegate.initParams.loadVideo;
+		let url = this._url || this.getDataUrl();
 
 		if (this._data) {
 			this.loadVideoData(this._data, onSuccess);
@@ -69,7 +72,7 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 				this.loadVideoData(this._data, onSuccess);
 			});
 		}
-		else if (this._url) {
+		else if (url) {
 			var This = this;
 			base.ajax.get({ url:this.getDataUrl() },
 				function(data,type,err) {
@@ -98,9 +101,9 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 					}
 				});
 		}
-	},
+	}
 
-	loadVideoData:function(data,onSuccess) {
+	loadVideoData(data,onSuccess) {
 		var This = this;
 		if (data.metadata) {
 			this.metadata = data.metadata;
@@ -124,9 +127,9 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 		this.frameList = data.frameList;
 		this.loadStatus = this.streams.length>0;
 		onSuccess();
-	},
+	}
 
-	loadFrameData:function(data) {
+	loadFrameData(data) {
 		var This = this;
 		if (data.frameList && data.frameList.forEach) {
 			var newFrames = {};
@@ -143,9 +146,9 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 			});
 			data.frameList = newFrames;
 		}
-	},
+	}
 
-	loadStream:function(stream) {
+	loadStream(stream) {
 		var This=this;
 		if (stream.preview && ! /^[a-zA-Z]+:\/\//.test(stream.preview) && !/^data:/.test(stream.preview)) {
 			stream.preview = This.getVideoUrl() + stream.preview;
@@ -188,9 +191,9 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 				delete stream.sources[type];
 			}
 		}
-	},
+	}
 
-	loadCaptions:function(captions) {
+	loadCaptions(captions) {
 		if (captions) {
 			for (var i=0; i<captions.length; ++i) {
 				var url = captions[i].url;
@@ -202,9 +205,9 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 				paella.captions.addCaptions(c);
 			}
 		}
-	},
+	}
 
-	loadBlackboard:function(stream, blackboard) {
+	loadBlackboard(stream, blackboard) {
 		var This = this;
 		if (!stream.sources.image) {
 			stream.sources.image = [];
@@ -227,10 +230,14 @@ Class ("paella.DefaultVideoLoader", paella.VideoLoader, {
 
 		stream.sources.image.push(imageObject);
 	}
-});
+}
 
-Class ("paella.DefaultInitDelegate", paella.InitDelegate, {
-});
+paella.DefaultVideoLoader = DefaultVideoLoader;
+
+class DefaultInitDelegate extends paella.InitDelegate {
+}
+
+paella.DefaultInitDelegate = DefaultInitDelegate;
 
 /*
  *	playerContainer	Player DOM container id
@@ -297,3 +304,7 @@ paella.load = function(playerContainer, params) {
 	paella.initDelegate = new paella.DefaultInitDelegate(initObjects);
 	new PaellaPlayer(playerContainer,paella.initDelegate);
 };
+
+
+})();
+

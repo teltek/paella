@@ -59,11 +59,48 @@ div {
     user-select: none;
 }
 
-i.button-icon {
+.buttonPlugin {
+    cursor: pointer;
+    padding-right: 0px;
+    padding-left: 0px;
+    background-origin: border-box;
+    position: relative;
+    display: block;
+    float: left;
+    align-items: stretch;
+    background-color: transparent;
+    border: none;
+    box-sizing: border-box;
+
+    min-width: unit(@playbackBarButtonWidthPx - @playbackBarButtonPadding * 2,px);
+    height: unit(@playbackBarButtonHeightPx - @playbackBarButtonPadding * 2, px);
+    
+    margin-left: @playbackBarButtonPadding;
+    margin-right: @playbackBarButtonPadding;
+    margin-top: @playbackBarButtonPadding;
+    color: @icon_text_color;
+    text-align: center;
+}
+
+button,div i.button-icon {
     color: @paella_icons_color;
     font-size: unit(@paellaIconsFontSizePx,px);
-    padding-left: unit(@paellaIconsPaddingLeftPx,px);
     line-height: unit(@paellaIconsLineHeightPx,px);
+    position: absolute;
+    top: 0px;
+    left: @playbackBarButtonPadding;
+}
+
+
+span.expandable-content {
+    color: @icon_text_color;
+    width: 80px;
+    display: block;
+    float: left;
+}
+
+.buttonPlugin.expandable-content {
+    background-color: transparent !important;
 }
 
 .buttonPlugin {
@@ -78,6 +115,7 @@ i.button-icon {
     bottom: 0px;
     text-align: center;
     line-height: unit(@playbackBarButtonHeight * 0.75,px);
+    z-index: 1;
 }
 
 i.button-icon.icon-screen {
@@ -154,17 +192,8 @@ i.button-icon.icon-screen {
     background: @playbackBarBackground;
 }
 
-.buttonPlugin {
-    width: unit(@playbackBarButtonWidthPx - @playbackBarButtonPadding * 2,px);
-    height: unit(@playbackBarButtonHeightPx - @playbackBarButtonPadding * 2, px);
-    cursor: pointer;
-    /*background-image: @paella_icons_image;
-    background-size: @paella_icons_bkg_size;
-    background-position: 0px 0px;*/
-    margin-left: @playbackBarButtonPadding;
-    margin-right: @playbackBarButtonPadding;
-    margin-top: @playbackBarButtonPadding;
-    color: @icon_text_color;
+.playbackBarFull.disabled {
+    opacity: 0.2;
 }
 
 .buttonPlugin.left {
@@ -276,6 +305,10 @@ i.button-icon.icon-screen {
 }
 
 .messageContainer {
+    width: 95%;
+    height: 95%;
+    margin-top: 2%;
+    position: relative;
     margin: auto;
     text-align: center;
     vertical-align: middle;
@@ -283,14 +316,18 @@ i.button-icon.icon-screen {
     padding-left: 80px;
     padding-right: 80px;
     background-color: white;
-    border-radius: 22px;
-    box-shadow: 1px 1px 8px black;
+    border-radius: 2px;
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.29);
     font-size: 20px;
     padding-top: 40px;
     padding-bottom:40px;
 }
 
 .frameContainer {
+    width: 95%;
+    height: 95%;
+    margin-top: 2%;
+    position: relative;
     margin: auto;
     text-align: center;
     /*vertical-align: middle;*/
@@ -298,8 +335,8 @@ i.button-icon.icon-screen {
     padding-left: 80px;
     padding-right: 80px;
     background-color: white;
-    border-radius: 22px;
-    box-shadow: 1px 1px 8px black;
+    border-radius: 2px;
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.29);
     font-size: 20px;
     padding-top: 40px;
     padding-bottom:40px;
@@ -307,14 +344,18 @@ i.button-icon.icon-screen {
 }
 
 .errorContainer {
+    width: 55%;
+    min-height: 55%;
+    margin-top: 22%;
+    position: relative;
     margin: auto;
     text-align: center;
     vertical-align: middle;
     padding-left: 120px;
     padding-right: 60px;
     background-color: white;
-    border-radius: 22px;
-    box-shadow: 1px 1px 8px black;
+    border-radius: 2px;
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.29);
     font-family: sans-serif;
     font-size: 20px;
     padding-top: 40px;
@@ -396,7 +437,7 @@ i.button-icon.icon-screen {
     position: fixed;
     background-color: @backgroundColor;
     z-index: 99;
-    min-width: 256px;
+    width: 256px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;

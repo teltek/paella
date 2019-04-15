@@ -21,6 +21,22 @@
         setPlaybackRate(rate) { return Promise.reject(new Error("no such compatible video player")); }
         playbackRate() { return Promise.reject(new Error("no such compatible video player")); }
         unload() { return Promise.reject(new Error("no such compatible video player")); }
+
+        getQualities() {
+            return Promise.resolve([
+                {
+                    index: 0,
+                    res: { w: 0, h: 1 },
+                    src: "",
+                    toString: function() { return ""; },
+                    shortLabel: function() { return ""; },
+                    compare: function() { return 0; }
+                }
+            ]);
+        }
+
+        getCurrentQuality() { return Promise.resolve(0); }
+        defaultProfile() { return null; }
         
         supportAutoplay() { return false;}
     };
@@ -122,7 +138,7 @@ class MultiformatAudioElement extends paella.AudioElementBase {
         var This = this;
 		var sources = this._stream.sources[this._streamName];
 		var stream = sources.length>0 ? sources[0]:null;
-		this.audio.innerHTML = "";
+		this.audio.innerText = "";
 		if (stream) {
 			var sourceElem = this.audio.querySelector('source');
 			if (!sourceElem) {
