@@ -75,7 +75,7 @@ paella.addPlugin(() => {
 
 		areBreaksClickable() {
 			//Returns true if the config value is set and if we are not on the editor.
-			return this.config.neverShow && !(paella.editor.instance && paella.editor.instance.isLoaded);
+			return this.config.neverShow && !(paella.editor && paella.editor.instance && paella.editor.instance.isLoaded);
 		}
 
 		showBreaks(br) {
