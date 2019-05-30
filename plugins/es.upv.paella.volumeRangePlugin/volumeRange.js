@@ -1,123 +1,122 @@
-
 paella.addPlugin(function() {
-	return class VolumeRangePlugin extends paella.ButtonPlugin {
-		getAlignment() { return 'left'; }
-		getSubclass() { return 'volumeRangeButton'; }
-		getIconClass() { return 'icon-volume-high'; }
-		getName() { return "es.upv.paella.volumeRangePlugin"; }
-		//getButtonType() { return paella.ButtonPlugin.type.popUpButton; }
-		getDefaultToolTip() { return base.dictionary.translate("Volume"); }
-		getIndex() {return 120;}
-		getAriaLabel() { return base.dictionary.translate("Volume"); }
+    return class VolumeRangePlugin extends paella.ButtonPlugin {
+        getAlignment() { return 'left'; }
+        getSubclass() { return 'volumeRangeButton'; }
+        getIconClass() { return 'icon-volume-mute'; }
+        getName() { return "es.upv.paella.volumeRangePlugin"; }
+        //getButtonType() { return paella.ButtonPlugin.type.popUpButton; }
+        getDefaultToolTip() { return base.dictionary.translate("Volume"); }
+        getIndex() {return 120;}
+        getAriaLabel() { return base.dictionary.translate("Volume"); }
 
-		
-		//closeOnMouseOut() { return true; }
-		
-		checkEnabled(onSuccess) {
-			this._tempMasterVolume = 0;
-			this._inputMaster = null;
-			this._control_NotMyselfEvent = true;
-			this._storedValue = false;
-			var enabled = !base.userAgent.browser.IsMobileVersion;
-			onSuccess(enabled);
-		}
 
-		setup() {
-			var self = this;
-			//STORE VALUES
-			paella.events.bind(paella.events.videoUnloaded,function(event,params) {self.storeVolume();});
-			//RECOVER VALUES
-			paella.events.bind(paella.events.singleVideoReady,function(event,params) {self.loadStoredVolume(params);});
+        //closeOnMouseOut() { return true; }
 
-			paella.events.bind(paella.events.setVolume, function(evt,par){ self.updateVolumeOnEvent(par);});
+        checkEnabled(onSuccess) {
+            this._tempMasterVolume = 0;
+            this._inputMaster = null;
+            this._control_NotMyselfEvent = true;
+            this._storedValue = false;
+            var enabled = !base.userAgent.browser.IsMobileVersion;
+            onSuccess(enabled);
+        }
 
-			this._preMutedVolume = 1;
-		}
+        setup() {
+            var self = this;
+            //STORE VALUES
+            paella.events.bind(paella.events.videoUnloaded,function(event,params) {self.storeVolume();});
+            //RECOVER VALUES
+            paella.events.bind(paella.events.singleVideoReady,function(event,params) {self.loadStoredVolume(params);});
 
-		updateVolumeOnEvent(volume){
-			var thisClass = this;
+            paella.events.bind(paella.events.setVolume, function(evt,par){ self.updateVolumeOnEvent(par);});
 
-			if(thisClass._control_NotMyselfEvent){
-				thisClass._inputMaster = volume.master;
-			}
-			else {thisClass._control_NotMyselfEvent = true;}
-		}
+            this._preMutedVolume = 1;
+        }
 
-		storeVolume(){
-			var This = this;
-			paella.player.videoContainer.streamProvider.mainAudioPlayer.volume()
-				.then(function(v) {
-					This._tempMasterVolume = v;
-					This._storedValue = true;
-				});
-		}
+        updateVolumeOnEvent(volume){
+            var thisClass = this;
 
-		loadStoredVolume(params){
-			if (this._storedValue == false) {
-				this.storeVolume();
-			}
+            if(thisClass._control_NotMyselfEvent){
+                thisClass._inputMaster = volume.master;
+            }
+            else {thisClass._control_NotMyselfEvent = true;}
+        }
 
-			if(this._tempMasterVolume){
-				paella.player.videoContainer.setVolume(this._tempMasterVolume);
-			}
-			this._storedValue = false;
-		}
+        storeVolume(){
+            var This = this;
+            paella.player.videoContainer.streamProvider.mainAudioPlayer.volume()
+                .then(function(v) {
+                    This._tempMasterVolume = v;
+                    This._storedValue = true;
+                });
+        }
 
-		action(button) {
-			paella.player.videoContainer.volume()
-				.then((v) => {
-					if (v==0) {
-						paella.player.videoContainer.setVolume(this._preMutedVolume);
-					}
-					else {
-						this._preMutedVolume = v;
-						paella.player.videoContainer.setVolume(0);
-					}
-				});
-		}
+        loadStoredVolume(params){
+            if (this._storedValue == false) {
+                this.storeVolume();
+            }
 
-		getExpandableContent() {
-			var rangeInput = document.createElement('input');
-			this._inputMaster = rangeInput;
-			rangeInput.type = "range";
-			rangeInput.min = 0;
-			rangeInput.max = 1;
-			rangeInput.step = 0.01;
-			paella.player.videoContainer.audioPlayer.volume()
-				.then((vol) => {
-					rangeInput.value = vol;
-				})
+            if(this._tempMasterVolume){
+                paella.player.videoContainer.setVolume(this._tempMasterVolume);
+            }
+            this._storedValue = false;
+        }
 
-			let updateMasterVolume = () => {
-				var masterVolume = $(rangeInput).val();
-				var slaveVolume = 0;
-				this._control_NotMyselfEvent = false;
-				paella.player.videoContainer.setVolume(masterVolume);
-			};
-			$(rangeInput).bind('input', function (e) { updateMasterVolume(); });
-			$(rangeInput).change(function() { updateMasterVolume(); });
+        action(button) {
+            paella.player.videoContainer.volume()
+                .then((v) => {
+                    if (v==0) {
+                        paella.player.videoContainer.setVolume(this._preMutedVolume);
+                    }
+                    else {
+                        this._preMutedVolume = v;
+                        paella.player.videoContainer.setVolume(0);
+                    }
+                });
+        }
 
-			paella.events.bind(paella.events.setVolume, (event,params) => {
-				rangeInput.value = params.master;
-				this.updateClass();
-			});
+        getExpandableContent() {
+            var rangeInput = document.createElement('input');
+            this._inputMaster = rangeInput;
+            rangeInput.type = "range";
+            rangeInput.min = 0;
+            rangeInput.max = 1;
+            rangeInput.step = 0.01;
+            paella.player.videoContainer.audioPlayer.volume()
+                .then((vol) => {
+                    rangeInput.value = vol;
+                })
 
-			return rangeInput;
-		}
+            let updateMasterVolume = () => {
+                var masterVolume = $(rangeInput).val();
+                var slaveVolume = 0;
+                this._control_NotMyselfEvent = false;
+                paella.player.videoContainer.setVolume(masterVolume);
+            };
+            $(rangeInput).bind('input', function (e) { updateMasterVolume(); });
+            $(rangeInput).change(function() { updateMasterVolume(); });
 
-		updateClass() {
-			var selected = '';
-			var self = this;
-			
-			paella.player.videoContainer.volume()
-				.then((volume) => {
-					if (volume === undefined) { selected = 'icon-volume-mid'; }
-					else if (volume == 0) { selected = 'icon-volume-mute'; }
-					else if (volume < 0.33) { selected = 'icon-volume-low'; }
-					else if (volume < 0.66) { selected = 'icon-volume-mid'; }
-					else { selected = 'icon-volume-high'; }
-					this.changeIconClass(selected);
-				})
-		}
-	};
+            paella.events.bind(paella.events.setVolume, (event,params) => {
+                rangeInput.value = params.master;
+                this.updateClass();
+            });
+
+            return rangeInput;
+        }
+
+        updateClass() {
+            var selected = '';
+            var self = this;
+
+            paella.player.videoContainer.volume()
+                .then((volume) => {
+                    if (volume === undefined) { selected = 'icon-volume-mid'; }
+                    else if (volume == 0) { selected = 'icon-volume-mute'; }
+                    else if (volume < 0.33) { selected = 'icon-volume-low'; }
+                    else if (volume < 0.66) { selected = 'icon-volume-mid'; }
+                    else { selected = 'icon-volume-high'; }
+                    this.changeIconClass(selected);
+                })
+        }
+    };
 });
