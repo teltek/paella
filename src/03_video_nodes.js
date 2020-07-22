@@ -757,7 +757,7 @@ Class ("paella.Html5Video", paella.VideoElementBase,{
 			get:function() { return This.domElement; }
 		});
 
-		this.video.preload = "auto";
+		this.video.preload = "metadata";
 		this.video.setAttribute("playsinline","");
 
 		function onProgress(event) {
